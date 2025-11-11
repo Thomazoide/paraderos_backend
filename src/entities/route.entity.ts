@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { WorkOrder } from "./work-order.entity";
+import { VisitForm } from "./visit-form.entity";
 
 @Entity()
 export class Route {
@@ -13,4 +14,6 @@ export class Route {
     completed: boolean;
     @OneToOne( () => WorkOrder, wo => wo.route )
     work_order: WorkOrder;
+    @OneToMany( () => VisitForm, vf => vf.route )
+    visitForms: VisitForm[];
 };
