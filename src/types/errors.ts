@@ -1,0 +1,1 @@
+export const EntityNotFoundError = new Error("entidad no encontrada");

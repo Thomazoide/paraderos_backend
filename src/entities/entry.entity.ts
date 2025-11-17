@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
 
 @Entity()
@@ -12,5 +12,6 @@ export class Entry {
     @Column()
     bus_stop_id: number;
     @ManyToOne( () => User, user => user.entries )
+    @JoinColumn({name: "user_id"})
     user: User;
 };
