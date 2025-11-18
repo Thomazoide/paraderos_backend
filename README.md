@@ -1,99 +1,200 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Paraderos – Backend (Municipalidad)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend para la plataforma de monitoreo y gestión de limpieza de paraderos. Permite registrar paraderos, generar órdenes de trabajo con rutas, gestionar fichas de visita (antes/después), y habilitar el seguimiento en tiempo real de los trabajadores en terreno.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Este repo contiene únicamente el backend (NestJS + TypeORM + MariaDB). También se planifica un frontend web y una app móvil (ver Roadmap).
 
-## Description
+## Estado Actual
+- Implementado:
+	- `BusStopController` (`/paraderos`) con operaciones básicas: crear/actualizar, listar, buscar y eliminar.
+	- `BusStopService` con persistencia vía TypeORM.
+	- `EntryService` (parcial; sin controlador asociado).
+	- Configuración base de NestJS, carga de variables de entorno y bootstrap.
+- Pendiente de integrar/corregir (backend):
+	- Registrar entidades en TypeORM (`entities: [...]` o `autoLoadEntities: true`).
+	- Arreglar `BusStopModule` para usar `BusStopController` como controller.
+	- Añadir módulos, servicios y controladores para el resto de entidades.
+	- Añadir DTOs y validación (`class-validator`, `class-transformer`).
+	- Autenticación/autorización (JWT) por tipo de usuario.
+	- WebSockets para ubicación en tiempo real.
+	- Tests (unitarios/e2e) para endpoints críticos.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Arquitectura (objetivo)
+- API REST con NestJS.
+- Base de datos MariaDB (driver `mysql2`) gestionada con TypeORM.
+- WebSockets (Socket.IO) para broadcast de ubicaciones y eventos de trabajo.
+- Almacenamiento de imágenes (antes/después) vía S3 u otro proveedor (SDK ya incluido).
 
-## Project setup
+## Entidades (src/entities)
+- `BusStop` (Paradero): `id`, `lat`, `lng`, `codigo`, `description`, `visitForms[]`.
+- `VisitForm` (Ficha de visita): `id`, `picBeforeURL`, `picAfterURL`, `description`, `busStopId`, `routeId?`, relaciones a `BusStop` y `Route`.
+- `Route` (Ruta): `id`, `route_points: number[]`, `route_points_visited: number[]`, `completed`, `work_order`, `visitForms[]`.
+- `WorkOrder` (Orden de trabajo): `id`, `completada`, `fichas_ids: number[]`, `creation_date`, `complete_date`, `user_id?`, `route_id?`, relación `route`, `user_final`.
+- `User`: `id`, `full_name`, `email`, `password`, `user_type: "jefatura" | "terreno" | "oferente"`, `entries`, `departures`, `work_orders?`.
+- `Entry` (Entrada): `id`, `date`, `user_id`, `bus_stop_id`, relación `user`.
+- `Departure` (Salida): `id`, `date`, `user_id`, `bus_stop_id`, relación `user`.
 
-```bash
-$ npm install
+Relaciones clave: un `BusStop` tiene muchas `VisitForm`; una `Route` puede estar asociada 1:1 a un `WorkOrder`; `User` tiene muchas `Entry` y `Departure`.
+
+## API – Implementado (hoy)
+- `Paraderos` (`/paraderos`)
+	- `POST /paraderos` – crea/actualiza un paradero. Body: parcial de `BusStop`.
+	- `GET /paraderos` – lista todos los paraderos (incluye `visitForms`).
+	- `GET /paraderos/find/:index` – busca por `id` o `codigo`.
+	- `DELETE /paraderos/delete/:index` – elimina por `id` o `codigo`.
+
+Nota: hoy `FindOneBusStop` elimina en lugar de devolver. En el desarrollo se corregirá para retornar el recurso sin eliminarlo y se migrará a rutas REST estándar (`GET /paraderos/:id` y `GET /paraderos?codigo=...`).
+
+## API – Pendiente por implementar (propuesta)
+- `Usuarios` (`/users`, `/auth`)
+	- `POST /auth/login` – login y emisión de JWT.
+	- `POST /users` – crear usuario (solo jefatura).
+	- `GET /users` y `GET /users/:id` – listar/obtener.
+	- `PATCH /users/:id` – actualizar datos y tipo.
+	- `DELETE /users/:id` – desactivar/eliminar.
+
+- `Fichas de visita` (`/fichas`)
+	- `POST /fichas` – crear ficha con `busStopId`, `description`, URLs de fotos.
+	- `GET /fichas/:id` – obtener ficha.
+	- `GET /fichas` – filtrar por `busStopId` y/o `routeId`.
+	- `PATCH /fichas/:id` – actualizar descripción/URLs.
+	- `DELETE /fichas/:id` – eliminar.
+
+- `Órdenes de trabajo` (`/ordenes`)
+	- `POST /ordenes` – crear (opcionalmente asignando `user_id` y `route_id`).
+	- `GET /ordenes` y `GET /ordenes/:id`.
+	- `PATCH /ordenes/:id` – actualizar estado (`completada`, `complete_date`) y asignaciones.
+	- `DELETE /ordenes/:id` – eliminar.
+
+- `Rutas` (`/rutas`)
+	- `POST /rutas` – crear ruta con `route_points`.
+	- `GET /rutas` y `GET /rutas/:id`.
+	- `PATCH /rutas/:id` – actualizar `route_points_visited` y marcar `completed`.
+	- `DELETE /rutas/:id` – eliminar.
+
+- `Entradas` (`/entradas`) y `Salidas` (`/salidas`)
+	- `POST /entradas` – registrar entrada (`user_id`, `bus_stop_id`, `date`).
+	- `GET /entradas` – listar, con filtros por usuario/rango de fechas.
+	- `POST /salidas` – registrar salida (`user_id`, `bus_stop_id`, `date`).
+	- `GET /salidas` – listar, con filtros.
+
+- `Tracking tiempo real` (WebSocket, p.ej. `/ws`)
+	- Evento `location:update` (cliente→servidor): `{ userId, lat, lng, ts }`.
+	- Evento `location:broadcast` (servidor→clientes jefatura): distribución en tiempo real.
+	- Endpoint REST opcional para última ubicación: `GET /tracking/users/:id/last`.
+
+## Tareas por hacer (checklist)
+- TypeORM
+	- [ ] Registrar todas las entidades en `TypeOrmModule.forRoot` o usar `autoLoadEntities: true`.
+	- [ ] Revisar tipos de columnas (`array` en `Route`) según base MariaDB.
+- Módulos/Servicios/Controladores
+	- [ ] `UsersModule`, `UsersService`, `UsersController`.
+	- [ ] `VisitFormsModule`, `VisitFormsService`, `VisitFormsController`.
+	- [ ] `WorkOrdersModule`, `WorkOrdersService`, `WorkOrdersController`.
+	- [ ] `RoutesModule`, `RoutesService`, `RoutesController`.
+	- [ ] `EntriesModule`, `EntryService` controlador y endpoints.
+	- [ ] `DeparturesModule`, `DeparturesService`, `DeparturesController`.
+	- [ ] Corregir `BusStopModule` para exportar `BusStopController` y registrar el módulo en `AppModule`.
+- Cross-cutting
+	- [ ] DTOs y validación de payloads.
+	- [ ] Manejo de errores consistente (`ResponsePayload<T>` o excepciones Nest).
+	- [ ] Autenticación JWT y guardias por `user_type`.
+	- [ ] WebSocket Gateway para tracking.
+	- [ ] Subida de imágenes (SDK S3 ya presente) y firma segura.
+	- [ ] Seeds/migraciones iniciales.
+	- [ ] Tests unitarios y e2e básicos.
+
+## Endpoints – Contratos (borrador)
+Ejemplos de payloads para guiar los DTOs:
+
+- Crear paradero
+	- `POST /paraderos`
+	- Body:
+		```json
+		{ "lat": -33.45, "lng": -70.66, "codigo": "P-123", "description": "Paradero Av. Central" }
+		```
+
+- Crear ficha de visita
+	- `POST /fichas`
+	- Body:
+		```json
+		{
+			"busStopId": 12,
+			"description": "Se retiró basura y se lavó",
+			"picBeforeURL": "https://.../before.jpg",
+			"picAfterURL": "https://.../after.jpg",
+			"routeId": 7
+		}
+		```
+
+- Crear orden de trabajo
+	- `POST /ordenes`
+	- Body:
+		```json
+		{
+			"fichas_ids": [101, 102, 103],
+			"user_id": 55,
+			"route_id": 7
+		}
+		```
+
+- Crear ruta
+	- `POST /rutas`
+	- Body:
+		```json
+		{
+			"route_points": [12, 34, 56],
+			"route_points_visited": [],
+			"completed": false
+		}
+		```
+
+## Configuración y ejecución
+Requisitos: Node 18+, MariaDB 10.5+.
+
+Variables de entorno necesarias (ejemplo):
+```
+PORT=3000
+DBHOST=localhost
+DBPORT=3306
+DBNAME=paraderos
+DBUSER=root
+DBPASS=changeme
 ```
 
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+Instalación y arranque (PowerShell):
+```powershell
+npm install
+npm run start:dev
 ```
 
-## Run tests
+Notas técnicas:
+- En `src/config/db.config.ts` configure las entidades (o use `autoLoadEntities: true`).
+- Ajuste el driver MariaDB/MySQL según su entorno.
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+## Estructura del proyecto (resumen)
+```
+src/
+	controllers/       # Controladores (hoy: BusStopController)
+	services/          # Servicios (hoy: BusStopService, EntryService)
+	entities/          # Entidades TypeORM
+	modules/           # Módulos de características (corregir BusStopModule)
+	config/            # Config DB y otros
+	types/             # Tipos y errores comunes
 ```
 
-## Deployment
+## Roadmap Frontend y Móvil
+- Frontend Web (sugerido): Next.js + TypeScript + TailwindCSS.
+	- Vistas: dashboard jefatura, mapa de ubicaciones, gestión de paraderos, órdenes y rutas, revisión de fichas.
+	- Consumo de API REST y canal de WebSockets.
+- App Móvil (sugerido): React Native (Expo) + TypeScript.
+	- Funciones: autenticación trabajador, lista de tareas/rutas, captura de fotos y envío de fichas, update de ubicación en tiempo real.
+	- Optimizar uso de GPS y subida de imágenes.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Próximos pasos sugeridos (backend)
+- Registrar entidades en TypeORM y corregir `BusStopModule`.
+- Añadir controladores y servicios faltantes tomando como guía las firmas propuestas.
+- Incorporar DTOs y validación.
+- Implementar auth JWT y guardias por tipo de usuario.
+- Añadir WebSocket Gateway para tracking en tiempo real.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
