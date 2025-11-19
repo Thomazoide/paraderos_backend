@@ -8,8 +8,6 @@ export class WorkOrder {
     id: number;
     @Column({default: false})
     completada: boolean
-    @Column()
-    fichas_ids: number[];
     @Column({type: "timestamp"})
     creation_date: Date;
     @Column({type: "timestamp"})
