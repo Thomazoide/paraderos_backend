@@ -1,4 +1,5 @@
 import { BusStop } from "src/entities/bus-stop.entity";
+import { User } from "src/entities/user.entity";
 
 export type UserType = "jefatura" | "terreno" | "oferente";
 export type RoutePoint = {
@@ -11,6 +12,7 @@ export interface ResponsePayload<T> {
     error: boolean;
 }
 export interface CreateRegPayload<T> {
+    userData: User;
     paradero: BusStop;
     registro: T;
 }

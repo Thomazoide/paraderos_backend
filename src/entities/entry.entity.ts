@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
+import { BusStop } from "./bus-stop.entity";
 
 @Entity()
 export class Entry {
@@ -14,4 +15,7 @@ export class Entry {
     @ManyToOne( () => User, user => user.entries )
     @JoinColumn({name: "user_id"})
     user: User;
+    @ManyToOne( () => BusStop, bs => bs.entries, {nullable: true} )
+    @JoinColumn({name: "bus_stop_id"})
+    busStop: BusStop | null;
 };

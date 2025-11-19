@@ -14,12 +14,38 @@ export class EntryService {
     async GetAllEntries(): Promise<Entry[]> {
         return await this.repo.find({
             relations: [
-                ""
+                "user",
+                "busStop"
             ]
         });
     };
 
     async SaveEntry(data: CreateRegPayload<Partial<Entry>>): Promise<Entry> {
-        return await this.repo.save(data.registro);
-    }
+        const newEntry = this.repo.create(data.registro);
+        newEntry.busStop = data.paradero;
+        newEntry.user = data.userData;
+        return await this.repo.save(newEntry);
+    };
+
+    async GetEntriesByUserID(user_id: number): Promise<Entry[]> {
+        return await this.repo.find({
+            where: {
+                user_id
+            },
+            relations: [
+                "busStop"
+            ]
+        });
+    };
+
+    async GetEntriesByStopID(bus_stop_id: number): Promise<Entry[]> {
+        return await this.repo.find({
+            where: {
+                bus_stop_id
+            },
+            relations: [
+                "user"
+            ]
+        })
+    };
 };

@@ -1,5 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { VisitForm } from "./visit-form.entity";
+import { Entry } from "./entry.entity";
+import { Departure } from "./departure.entity";
 
 @Entity()
 export class BusStop {
@@ -15,4 +17,8 @@ export class BusStop {
     description: string;
     @OneToMany( () => VisitForm, vf => vf.busStop )
     visitForms: VisitForm[];
+    @OneToMany( () => Entry, entry => entry.busStop, {nullable: true} )
+    entries: Entry[] | null;
+    @OneToMany( () => Departure, departure => departure.busStop, {nullable: true} )
+    departures: Departure[];
 };
