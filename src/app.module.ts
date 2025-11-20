@@ -9,6 +9,8 @@ import { DepartureModule } from './modules/departure.module';
 import { EntryModule } from './modules/entry.module';
 import { WorkOrderModule } from './modules/work-order.module';
 import { RouteModule } from './modules/route.module';
+import { UserModule } from './modules/user.module';
+import { AuthModule } from './modules/auth.module';
 
 
 @Module({
@@ -21,11 +23,13 @@ import { RouteModule } from './modules/route.module';
       inject: [ConfigService],
       useFactory: typeOrmConfig
     }),
+    AuthModule,
     BusStopModule,
     DepartureModule,
     EntryModule,
     WorkOrderModule,
-    RouteModule
+    RouteModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

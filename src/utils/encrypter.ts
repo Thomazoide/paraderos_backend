@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { sign, SignOptions } from "jsonwebtoken";
+import { sign, SignOptions, verify } from "jsonwebtoken";
 
 export class Encrypter {
 
@@ -16,7 +16,7 @@ export class Encrypter {
 
     EncryptPassword(password: string): string {
         return createHmac("sha256", this.Secret).update(password + this.Pepper).digest("hex");
-    }
+    };
 
     VerifyPassword(password: string, encryptedPassword: string): boolean {
         const reEncryptedPassword = this.EncryptPassword(password);
@@ -24,7 +24,7 @@ export class Encrypter {
         const bufferB = Buffer.from(encryptedPassword, "hex");
         if(bufferA.length !== bufferB.length) return false;
         return timingSafeEqual(bufferA, bufferB);
-    }
+    };
 
     CreateJWT(payload: Record<string, any>): string {
         const opts: SignOptions = {
@@ -32,5 +32,14 @@ export class Encrypter {
             expiresIn: "3h"
         };
         return sign(payload, this.Secret, opts);
-    }
+    };
+
+    VerifyJWT(token: string): boolean {
+        try {
+            verify(token, this.Secret);
+            return true;
+        } catch {
+            return false
+        }
+    };
 };
