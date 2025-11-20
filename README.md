@@ -43,14 +43,14 @@ Nota: Endpoints exactos según métodos en controladores; agregar Swagger para d
 Generación: primera letra del nombre + apellido normalizado. Unicidad: sufijo incremental (ej: mjara, mjara1, mjara2).
 
 ## Variables de entorno (.env)
-PORT=XXX
-DB_HOST=XXX
-DB_PORT=XXX
-DB_NAME=XXX
-DB_USER=XXX
-DB_PASS=XXX
-SECRET=XXX
-PEPPER=XXX
+- PORT
+- DB_HOST
+- DB_PORT
+- DB_NAME
+- DB_USER
+- DB_PASS
+- SECRET
+- PEPPER
 
 ## Scripts
 Instalación: npm install
