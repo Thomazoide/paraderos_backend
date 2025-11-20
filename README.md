@@ -59,27 +59,16 @@ Dev: npm run start:dev
 Requisitos: Node 18+, MariaDB 10.5+
 
 ## Estructura
-src/
-
-├── main.ts
-
-├── app.module.ts
-
-├── controllers/ (auth, user, bus-stop, route, work-order, entry, departure)
-
-├── services/ (auth.service.ts, user.service.ts, ...)
-
-├── modules/ (auth.module.ts, user.module.ts, ...)
-
-├── entities/
-
-├── utils/ (encrypter.ts)
-
-├── config/ (db.config.ts)
-
-├── types/ (errors.ts, types.ts)
-
-test/ (pendiente)
+	src/
+	├── main.ts
+	├── app.module.ts
+	├── controllers/ (auth, user, bus-stop, route, work-order, entry, departure)
+	├── services/ (auth.service.ts, user.service.ts, ...)
+	├── modules/ (auth.module.ts, user.module.ts, ...)
+	├── entities/
+	├── utils/ (encrypter.ts)
+	├── config/ (db.config.ts)
+	├── types/ (errors.ts, types.ts)
 
 Última actualización: 20 Nov 2025
 Status: Base funcional v1 + Auth + Users + generación username ✔
