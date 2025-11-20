@@ -3,7 +3,7 @@ import { WorkOrder } from "src/entities/work-order.entity";
 import { WorkOrderService } from "src/services/work-order.service";
 import { ResponsePayload } from "src/types/types";
 
-@Controller("ordenes")
+@Controller("ordenes/v1")
 export class WorkOrderController {
     constructor(
         private readonly service: WorkOrderService

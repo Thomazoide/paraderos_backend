@@ -3,7 +3,7 @@ import { Departure } from "src/entities/departure.entity";
 import { DepartureService } from "src/services/departure.service";
 import { CreateRegPayload, ResponsePayload } from "src/types/types";
 
-@Controller("salidas")
+@Controller("salidas/v1")
 export class DepartureController {
     constructor(
         private readonly service: DepartureService

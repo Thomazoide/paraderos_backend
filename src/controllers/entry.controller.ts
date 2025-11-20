@@ -3,7 +3,7 @@ import { Entry } from "src/entities/entry.entity";
 import { EntryService } from "src/services/entry.service";
 import { CreateRegPayload, ResponsePayload } from "src/types/types";
 
-@Controller("entradas")
+@Controller("entradas/v1")
 export class EntryController {
     constructor(
         private readonly service: EntryService

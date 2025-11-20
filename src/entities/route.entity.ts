@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { WorkOrder } from "./work-order.entity";
 import { VisitForm } from "./visit-form.entity";
 
@@ -12,8 +12,11 @@ export class Route {
     route_points_visited: number[];
     @Column({type: "boolean", default: false})
     completed: boolean;
-    @OneToOne( () => WorkOrder, wo => wo.route )
-    work_order: WorkOrder;
+    @Column({nullable: true})
+    work_order_id: number | null;
+    @OneToOne( () => WorkOrder, wo => wo.route, {nullable: true} )
+    @JoinColumn({name: "work_order_id"})
+    work_order: WorkOrder | null;
     @OneToMany( () => VisitForm, vf => vf.route )
     visitForms: VisitForm[];
 };

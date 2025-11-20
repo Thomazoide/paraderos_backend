@@ -3,7 +3,7 @@ import { BusStop } from "src/entities/bus-stop.entity";
 import { BusStopService } from "src/services/bus-stop.service";
 import { ResponsePayload } from "src/types/types";
 
-@Controller("/paraderos")
+@Controller("/paraderos/v1")
 export class BusStopController {
     constructor(
         private readonly service: BusStopService
