@@ -8,8 +8,8 @@ export class VisitForm {
     id: number;
     @Column({name: "pic_before_url"})
     picBeforeURL: string;
-    @Column({name: "pic_after_url"})
-    picAfterURL: string;
+    @Column({name: "pic_after_url", nullable: true, default: null})
+    picAfterURL: string | null;
     @Column()
     description: string;
     @Column({name: "bus_stop_id"})

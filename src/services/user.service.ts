@@ -92,6 +92,14 @@ export class UserService {
         return this.repository.remove(user);
     };
 
+    async GetUserByID(id: number): Promise<User> {
+        return await this.repository.findOne({
+            where: {
+                id
+            }
+        });
+    };
+
     async UpdatePosition(payload: UpdatePositionPayload): Promise<User> {
         const user = await this.repository.findOne({
             where: {

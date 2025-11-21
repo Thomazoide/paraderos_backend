@@ -3,8 +3,8 @@ import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from
 import { Server } from "socket.io";
 import { User } from "src/entities/user.entity";
 import { UserService } from "src/services/user.service";
-import { WebSocketExceptionFilter } from "src/types/errors";
-import { ResponsePayload, UpdatePositionPayload } from "src/types/types";
+import { EntityNotFoundError, WebSocketExceptionFilter } from "src/types/errors";
+import { RequestPositionPayload, ResponsePayload, UpdatePositionPayload } from "src/types/types";
 
 @WebSocketGateway({namespace: "/gps"})
 @UseFilters(WebSocketExceptionFilter)
@@ -37,4 +37,25 @@ export class GpsSocket {
             return response;
         }
     };
+
+    @SubscribeMessage("obtener-gps")
+    async GetGps(
+        @MessageBody()
+        data: RequestPositionPayload
+    ): Promise<void> {
+        try {
+            const user = await this.service.GetUserByID(data.id);
+            if(!user) throw EntityNotFoundError;
+            this.server.emit("gps", {
+                message: "posición",
+                data: user,
+                error: false
+            } as ResponsePayload<User>);
+        } catch (err) {
+            this.server.emit("server-error", {
+                message: (err as Error).message,
+                error: true
+            } as ResponsePayload<void>);
+        }
+    }
 };

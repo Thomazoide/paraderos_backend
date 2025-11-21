@@ -34,3 +34,6 @@ export interface UpdatePositionPayload {
     lng: number;
     timestamp: string;
 };
+export interface RequestPositionPayload {
+    id: number;
+};
