@@ -27,4 +27,10 @@ export interface LoginPayload {
 };
 export interface VerifyTokenPayload {
     token: string;
-}
+};
+export interface UpdatePositionPayload {
+    id: number;
+    lat: number;
+    lng: number;
+    timestamp: string;
+};

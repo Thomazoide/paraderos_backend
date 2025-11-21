@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/entities/user.entity";
 import { ApiNotForPasswordChange, EntityNotFoundError, IncorrectPasswordError } from "src/types/errors";
-import { UpdatePasswordPayload } from "src/types/types";
+import { UpdatePasswordPayload, UpdatePositionPayload } from "src/types/types";
 import { Encrypter } from "src/utils/encrypter";
 import { Repository } from "typeorm";
 
@@ -90,5 +90,18 @@ export class UserService {
         });
         if(!user) throw EntityNotFoundError;
         return this.repository.remove(user);
-    }
+    };
+
+    async UpdatePosition(payload: UpdatePositionPayload): Promise<User> {
+        const user = await this.repository.findOne({
+            where: {
+                id: payload.id
+            }
+        });
+        if(!user) throw EntityNotFoundError;
+        user.lat = payload.lat;
+        user.lng = payload.lng;
+        user.lastUpdated = payload.timestamp;
+        return await this.repository.save(user);
+    };
 };

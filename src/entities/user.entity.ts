@@ -18,6 +18,12 @@ export class User {
     password: string;
     @Column()
     user_type: UserType;
+    @Column({type: "double precision", nullable: true, default: null})
+    lat: number | null;
+    @Column({type: "double precision", nullable: true, default: null})
+    lng: number | null;
+    @Column({name: "last_updated", nullable: true, default: null})
+    lastUpdated: string | null;
     @OneToMany( () => Entry, entry => entry.user )
     entries: Entry;
     @OneToMany( () => Departure, dep => dep.user )
