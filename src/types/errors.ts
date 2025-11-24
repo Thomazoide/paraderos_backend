@@ -27,3 +27,4 @@ export class WebSocketExceptionFilter extends BaseWsExceptionFilter {
         }
     }
 };
+export const AmazonBucketNameNotFound = new Error("S3_BUCKET_NAME no está configurado en las variables de entorno");
