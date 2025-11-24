@@ -22,4 +22,6 @@ export class VisitForm {
     @ManyToOne( () => Route, route => route.visitForms, {nullable: true})
     @JoinColumn({name: "route_id"})
     route: Route | null;
+    @Column({default: false})
+    completed: boolean;
 };
