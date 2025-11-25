@@ -3,6 +3,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { WorkOrder } from "./work-order.entity";
 import { Entry } from "./entry.entity";
 import { Departure } from "./departure.entity";
+import { VisitForm } from "./visit-form.entity";
 
 @Entity()
 export class User {
@@ -30,4 +31,6 @@ export class User {
     departures: Departure;
     @OneToMany( () => WorkOrder, wo => wo.user_final, {nullable: true} )
     work_orders: WorkOrder[] | null;
+    @OneToMany( () => VisitForm, vf => vf.user )
+    visitForms: VisitForm[];
 };

@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch } from "@nestjs/common";
+import { ArgumentsHost, BadRequestException, Catch } from "@nestjs/common";
 import { BaseWsExceptionFilter, WsException } from "@nestjs/websockets";
 import { Socket } from "socket.io";
 
@@ -28,3 +28,4 @@ export class WebSocketExceptionFilter extends BaseWsExceptionFilter {
     }
 };
 export const AmazonBucketNameNotFound = new Error("S3_BUCKET_NAME no está configurado en las variables de entorno");
+export const FileNotAccepted = new BadRequestException("solo se permiten archivos de imagen");

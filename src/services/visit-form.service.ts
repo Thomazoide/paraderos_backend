@@ -59,6 +59,22 @@ export class VisitFormService {
         visitForm.picAfterURL = picURL;
         visitForm.completed = true;
         return await this.repository.save(visitForm);
+    };
+
+    async FindByRouteID(id: number): Promise<VisitForm[]> {
+        return await this.repository.find({
+            where: {id}
+        });
+    };
+
+    async GetAllVisitForms(): Promise<VisitForm[]> {
+        return await this.repository.find();
+    };
+
+    async GetByUserID(userId: number): Promise<VisitForm[]> {
+        return await this.repository.find({
+            where: {userId}
+        });
     }
 
     private async UploadMulterFileToS3(

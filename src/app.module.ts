@@ -11,6 +11,7 @@ import { WorkOrderModule } from './modules/work-order.module';
 import { RouteModule } from './modules/route.module';
 import { UserModule } from './modules/user.module';
 import { AuthModule } from './modules/auth.module';
+import { VisitFormModule } from './modules/visit-form.module';
 
 
 @Module({
@@ -30,6 +31,7 @@ import { AuthModule } from './modules/auth.module';
     WorkOrderModule,
     RouteModule,
     UserModule,
+    VisitFormModule
   ],
   controllers: [AppController],
   providers: [AppService],
