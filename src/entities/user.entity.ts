@@ -25,10 +25,10 @@ export class User {
     lng: number | null;
     @Column({name: "last_updated", nullable: true, default: null})
     lastUpdated: string | null;
-    @OneToMany( () => Entry, entry => entry.user )
-    entries: Entry;
-    @OneToMany( () => Departure, dep => dep.user )
-    departures: Departure;
+    @OneToMany( () => Entry, entry => entry.user, {nullable: true} )
+    entries: Entry[] | null;
+    @OneToMany( () => Departure, dep => dep.user, {nullable: true} )
+    departures: Departure[] | null;
     @OneToMany( () => WorkOrder, wo => wo.user_final, {nullable: true} )
     work_orders: WorkOrder[] | null;
     @OneToMany( () => VisitForm, vf => vf.user )

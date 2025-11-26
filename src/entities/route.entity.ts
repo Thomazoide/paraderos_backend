@@ -17,6 +17,6 @@ export class Route {
     @OneToOne( () => WorkOrder, wo => wo.route, {nullable: true} )
     @JoinColumn({name: "work_order_id"})
     work_order: WorkOrder | null;
-    @OneToMany( () => VisitForm, vf => vf.route )
-    visitForms: VisitForm[];
+    @OneToMany( () => VisitForm, vf => vf.route, {nullable: true} )
+    visitForms: VisitForm[] | null;
 };

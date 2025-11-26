@@ -8,10 +8,10 @@ export class WorkOrder {
     id: number;
     @Column({default: false})
     completada: boolean
-    @Column({type: "timestamp"})
-    creation_date: Date;
-    @Column({type: "timestamp"})
-    complete_date: Date;
+    @Column()
+    creation_date: string;
+    @Column()
+    complete_date: string;
     @Column({nullable: true})
     user_id: number | null;
     @Column({nullable: true})

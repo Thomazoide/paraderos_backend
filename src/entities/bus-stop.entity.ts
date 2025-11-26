@@ -15,10 +15,10 @@ export class BusStop {
     codigo: string;
     @Column()
     description: string;
-    @OneToMany( () => VisitForm, vf => vf.busStop )
-    visitForms: VisitForm[];
+    @OneToMany( () => VisitForm, vf => vf.busStop, {nullable: true} )
+    visitForms: VisitForm[] | null;
     @OneToMany( () => Entry, entry => entry.busStop, {nullable: true} )
     entries: Entry[] | null;
     @OneToMany( () => Departure, departure => departure.busStop, {nullable: true} )
-    departures: Departure[];
+    departures: Departure[] | null;
 };

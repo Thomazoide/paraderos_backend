@@ -6,15 +6,15 @@ import { BusStop } from "./bus-stop.entity";
 export class Entry {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column({type: "timestamp"})
-    date: Date;
+    @Column()
+    date: string;
     @Column()
     user_id: number;
     @Column()
     bus_stop_id: number;
-    @ManyToOne( () => User, user => user.entries )
+    @ManyToOne( () => User, user => user.entries, {nullable: true} )
     @JoinColumn({name: "user_id"})
-    user: User;
+    user: User | null;
     @ManyToOne( () => BusStop, bs => bs.entries, {nullable: true} )
     @JoinColumn({name: "bus_stop_id"})
     busStop: BusStop | null;
