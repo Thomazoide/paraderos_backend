@@ -2,20 +2,22 @@
 
 Backend NestJS + TypeORM (MariaDB) para monitoreo y gestión de limpieza de paraderos.
 
-## Estado (Actualizado 20/11/2025)
+## Estado (Actualizado 26/11/2025)
 
 ### Implementado
-- Controladores v1: BusStop, Route, WorkOrder, Entry, Departure, User, Auth
-- Servicios: BusStopService, RouteService, WorkOrderService, EntryService, DepartureService, UserService (username único), AuthService (JWT)
-- Módulos: bus-stop, route, work-order, entry, departure, user, auth
-- Utilidades: Encrypter (hash sha256 + pepper + SECRET, CreateJWT, VerifyPassword, ValidateJWT)
-- Entidades: BusStop, VisitForm, Route, WorkOrder, User, Entry, Departure
-- Configuración TypeORM + carga .env
+- Controladores v1: `AuthController`, `UserController`, `BusStopController`, `RouteController`, `WorkOrderController`, `EntryController`, `DepartureController`, `VisitFormController`
+- Servicios: `AuthService` (login + verificación JWT), `UserService` (username único + CRUD parcial), `BusStopService`, `RouteService`, `WorkOrderService`, `EntryService`, `DepartureService`, `VisitFormService`
+- Módulos: `auth.module.ts`, `user.module.ts`, `bus-stop.module.ts`, `route.module.ts`, `work-order.module.ts`, `entry.module.ts`, `departure.module.ts`, `visit-form.module.ts`
+- Utilidades: `Encrypter` (hash sha256 con pepper + `SECRET`, `CreateJWT`, `VerifyPassword`, `VerifyJWT`)
+- Entidades: `BusStop`, `VisitForm`, `Route`, `WorkOrder`, `User`, `Entry`, `Departure`
+- Sockets: `gps.socket.ts` (estructura inicial para tracking)
+- Configuración TypeORM + carga de variables de entorno
 
 ### Pendiente
-- Guards JWT + autorización por roles (user_type)
-- WebSockets (tracking en tiempo real)
-- Subida de imágenes (S3) para VisitForm
+- DTOs + `class-validator` / `class-transformer`
+- Guards JWT + autorización por roles (`user_type`)
+- WebSockets (activar `gps.socket` y canalizar eventos)
+- Subida de imágenes (S3) para `VisitForm`
 - Migraciones y seeds
 - Tests (unit / e2e)
 - Swagger/OpenAPI
@@ -30,32 +32,46 @@ Backend NestJS + TypeORM (MariaDB) para monitoreo y gestión de limpieza de para
 	Entry / Departure (N→1 User)
 
 ## API v1 (Controladores presentes)
-	Paraderos: /paraderos/v1 (CRUD básico + find por id/código)
-	Rutas: /rutas/v1 (listar, crear, find/:id, orden/:workOrderId)
+	Auth: /auth/v1
+		- POST /login → devuelve JWT si credenciales válidas
+		- POST /verificar-token → valida JWT (boolean)
+	Usuarios: /usuarios/v1
+		- GET / → listar usuarios (id, full_name, email, username, user_type)
+		- POST /registrar → crear usuario (genera `username` único y encripta `password`)
+		- POST /actualizar → actualizar datos (sin cambio de password)
+		- POST /actualizar/clave → cambio de password con verificación de clave anterior
+	Paraderos: /paraderos/v1
+		- POST / → crear/actualizar paradero
+		- GET / → listar paraderos (incluye `visitForms`)
+		- GET /find/:index → buscar por `id` o `codigo`
+		- DELETE /delete/:index → eliminar por `id` o `codigo`
+	Rutas: /rutas/v1 (listar/crear/find/:id, orden/:workOrderId)
 	Órdenes: /ordenes/v1 (CRUD básico)
-	Entradas: /entradas/v1 (CRUD básico)
+	Entradas: /entradas/v1 (listar, crear, por usuario, por paradero)
 	Salidas: /salidas/v1 (CRUD básico)
-	Usuarios: /users/v1 (crear, listar, actualizar sin cambio de password, borrar)
-	Auth: /auth/v1 (login → JWT)  (detalles según implementación interna)
-	Nota: Endpoints exactos según métodos en controladores; agregar Swagger para definición formal.
+	Fichas de visita: /visitas/v1 (CRUD básico)
+	Nota: Endpoints exactos según métodos en controladores; se recomienda agregar Swagger para definición formal.
 
 ## Username
-Generación: primera letra del nombre + apellido normalizado. Unicidad: sufijo incremental (ej: mjara, mjara1, mjara2).
+- Generación: primera letra del nombre + apellido normalizado (sin tildes ni espacios), minúsculas.
+- Unicidad: consulta `LIKE base%` y agrega sufijo incremental libre (ej: `mjara`, `mjara1`, `mjara2`).
+- Recomendación: índice `UNIQUE` en columna `username` para consistencia.
 
 ## Variables de entorno (.env)
 - PORT
-- DB_HOST
-- DB_PORT
-- DB_NAME
-- DB_USER
-- DB_PASS
+- DBHOST
+- DBPORT
+- DBNAME
+- DBUSER
+- DBPASS
 - SECRET
 - PEPPER
 
-## Scripts
-`Instalación: npm install`
+Nota: La configuración actual de TypeORM usa las claves sin guion bajo (`DBHOST`, `DBPORT`, …) según `src/config/db.config.ts`.
 
-`Dev: npm run start:dev`
+## Scripts
+- Instalación: `npm install`
+- Desarrollo: `npm run start:dev`
 
 Requisitos: Node 18+, MariaDB 10.5+
 
@@ -63,14 +79,15 @@ Requisitos: Node 18+, MariaDB 10.5+
 	src/
 	├── main.ts
 	├── app.module.ts
-	├── controllers/ (auth, user, bus-stop, route, work-order, entry, departure)
+	├── controllers/ (auth, usuarios, paraderos, rutas, ordenes, entradas, salidas, visitas)
 	├── services/ (auth.service.ts, user.service.ts, ...)
 	├── modules/ (auth.module.ts, user.module.ts, ...)
 	├── entities/
+	├── sockets/ (gps.socket.ts)
 	├── utils/ (encrypter.ts)
 	├── config/ (db.config.ts)
 	├── types/ (errors.ts, types.ts)
 
-Última actualización: 20 Nov 2025
+Última actualización: 26 Nov 2025
 
-Status: Base funcional v1 + Auth + Users + generación username ✔
+Status: Base funcional v1 (Auth, Usuarios, Paraderos, Rutas, Órdenes, Entradas/Salidas, Visitas) + generación username ✔
