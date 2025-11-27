@@ -6,9 +6,9 @@ import { VisitForm } from "./visit-form.entity";
 export class Route {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column({type: "array"})
+    @Column({type: "json"})
     route_points: number[];
-    @Column({type: "array"})
+    @Column({type: "json"})
     route_points_visited: number[];
     @Column({type: "boolean", default: false})
     completed: boolean;

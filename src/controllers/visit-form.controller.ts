@@ -5,7 +5,7 @@ import { VisitFormService } from "src/services/visit-form.service";
 import { FileNotAccepted } from "src/types/errors";
 import { ResponsePayload } from "src/types/types";
 
-@Controller("formularios")
+@Controller("formularios/v1")
 export class VisitFormController {
     constructor(
         private readonly service: VisitFormService
