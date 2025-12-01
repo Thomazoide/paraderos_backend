@@ -12,6 +12,8 @@ import { RouteModule } from './modules/route.module';
 import { UserModule } from './modules/user.module';
 import { AuthModule } from './modules/auth.module';
 import { VisitFormModule } from './modules/visit-form.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './guards/passport.guard';
 
 
 @Module({
@@ -33,7 +35,15 @@ import { VisitFormModule } from './modules/visit-form.module';
     UserModule,
     VisitFormModule
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [
+    AppController
+  ],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard
+    }
+  ],
 })
 export class AppModule {}

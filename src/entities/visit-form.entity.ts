@@ -19,6 +19,10 @@ export class VisitForm {
     userId: number | null;
     @Column({nullable: true, default: null, name: "route_id"})
     routeId: number | null;
+    @Column()
+    creation_date: string;
+    @Column({nullable: true, default: null})
+    completion_date: string | null;
     @ManyToOne( () => BusStop, bs => bs.visitForms )
     @JoinColumn({name: "bus_stop_id"})
     busStop: BusStop;

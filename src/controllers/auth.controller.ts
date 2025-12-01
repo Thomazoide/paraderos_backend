@@ -1,4 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
+import { Public } from "src/decorators/public.decorator";
 import { AuthService } from "src/services/auth.service";
 import { LoginPayload, ResponsePayload, VerifyTokenPayload } from "src/types/types";
 
@@ -8,6 +9,7 @@ export class AuthController {
         private readonly service: AuthService
     ){};
 
+    @Public()
     @Post("login")
     async Login(
         @Body()
@@ -27,6 +29,7 @@ export class AuthController {
         }
     };
 
+    @Public()
     @Post("verificar-token")
     async VerifyToken(
         @Body()
