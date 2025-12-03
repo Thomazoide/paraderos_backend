@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Public } from "src/decorators/public.decorator";
 import { User } from "src/entities/user.entity";
 import { UserService } from "src/services/user.service";
 import { ResponsePayload, UpdatePasswordPayload } from "src/types/types";
@@ -25,6 +26,7 @@ export class UserController {
         }
     };
 
+    @Public()
     @Post("registrar")
     async Register(
         @Body()
