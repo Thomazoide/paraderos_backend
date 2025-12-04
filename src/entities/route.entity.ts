@@ -10,15 +10,10 @@ export class Route {
     route_name: string;
     @Column({type: "json"})
     route_points: number[];
-    @Column({type: "json"})
-    route_points_visited: number[];
     @Column({type: "boolean", default: false})
     completed: boolean;
-    @Column({nullable: true})
-    work_order_id: number | null;
-    @OneToOne( () => WorkOrder, wo => wo.route, {nullable: true} )
-    @JoinColumn({name: "work_order_id"})
-    work_order: WorkOrder | null;
+    @OneToMany( () => WorkOrder, wo => wo.route, {nullable: true} )
+    work_orders: WorkOrder[] | null;
     @OneToMany( () => VisitForm, vf => vf.route, {nullable: true} )
     visitForms: VisitForm[] | null;
 };

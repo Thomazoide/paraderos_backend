@@ -33,14 +33,4 @@ export class RouteService {
         });
     };
 
-    async FindByWorkOrderID(work_order_id: number): Promise<Route> {
-        return await this.repository.findOne({
-            where: {
-                work_order_id
-            },
-            relations: [
-                "visitForms"
-            ]
-        })
-    };
 };

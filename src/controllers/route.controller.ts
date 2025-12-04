@@ -62,23 +62,4 @@ export class RouteController {
             };
         }
     };
-
-    @Get("orden/:id")
-    async FindByWorkOrderID(
-        @Param("id", ParseIntPipe)
-        work_order_id: number
-    ): Promise<ResponsePayload<Route>> {
-        try {
-            return {
-                message: "Ruta encontrada",
-                data: await this.service.FindByWorkOrderID(work_order_id),
-                error: false
-            };
-        } catch (err) {
-            return {
-                message: (err as Error).message,
-                error: true
-            };
-        }
-    };
 }
