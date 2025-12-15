@@ -32,7 +32,7 @@ export class WorkOrderController {
     ): Promise<ResponsePayload<WorkOrder>> {
         try {
             return {
-                message: "orden creada",
+                message: "orden creada/actualizada",
                 data: await this.service.SaveOrder(newOrder),
                 error: false
             };

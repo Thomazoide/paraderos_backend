@@ -84,3 +84,49 @@ export class UserController {
         }
     };
 };
+
+@Controller("usuarios/v2")
+export class UserControllerV2 {
+    constructor(
+        private readonly service: UserService
+    ){};
+
+    @Public()
+    @Post("registrar")
+    async Resgister(
+        @Body()
+        data: Partial<User>
+    ): Promise<ResponsePayload<User>> {
+        try {
+            return {
+                message: "Usuario creado",
+                data: await this.service.CreateUserV2(data),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                error: true
+            };
+        }
+    };
+
+    @Post("actualizar/clave")
+    async UpdatePassword(
+        @Body()
+        payload: UpdatePasswordPayload
+    ): Promise<ResponsePayload<User>> {
+        try {
+            return {
+                message: "Clave actualizada",
+                data: await this.service.UpdatePasswordV2(payload),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                error: true
+            };
+        }
+    };
+};

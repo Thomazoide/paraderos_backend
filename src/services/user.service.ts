@@ -44,6 +44,13 @@ export class UserService {
         return `${base}${i}`
     };
 
+    async CreateUserV2(data: Partial<User>): Promise<User> {
+        const newUser = data;
+        newUser.username = await this.CreateUsername(data.full_name);
+        newUser.password = this.encrypter.EncryptPasswordV2(data.password);
+        return await this.repository.save(newUser);
+    }
+
     async CreateUser(data: Partial<User>): Promise<User> {
         const newUser = data;
         newUser.username = await this.CreateUsername(data.full_name);
@@ -79,6 +86,18 @@ export class UserService {
         if(!user) throw EntityNotFoundError;
         if(!this.encrypter.VerifyPassword(payload.oldPassword, user.password)) throw IncorrectPasswordError;
         user.password = this.encrypter.EncryptPassword(payload.newPassword);
+        return await this.repository.save(user);
+    };
+
+    async UpdatePasswordV2(payload: UpdatePasswordPayload): Promise<User> {
+        const user = await this.repository.findOne({
+            where: {
+                id: payload.id
+            }
+        });
+        if(!user) throw EntityNotFoundError;
+        if(!this.encrypter.VerifyPasswordV2(payload.oldPassword, user.password)) throw IncorrectPasswordError;
+        user.password = this.encrypter.EncryptPasswordV2(payload.newPassword);
         return await this.repository.save(user);
     };
 

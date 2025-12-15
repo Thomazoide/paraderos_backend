@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { sign, SignOptions, verify } from "jsonwebtoken";
+import { hashSync, compareSync } from "bcrypt";
 
 export class Encrypter {
 
@@ -12,6 +13,14 @@ export class Encrypter {
     ){
         this.Secret = secret;
         this.Pepper = pepper;
+    };
+
+    EncryptPasswordV2(password: string): string {
+        return hashSync(`${password}${this.Pepper}`, 10);
+    };
+
+    VerifyPasswordV2(password: string, encryptedPassword: string): boolean {
+        return compareSync(password, encryptedPassword);
     };
 
     EncryptPassword(password: string): string {

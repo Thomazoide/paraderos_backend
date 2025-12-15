@@ -39,4 +39,22 @@ export class AuthService {
     async VerifyToken(token: string): Promise<boolean> {
         return this.encrypter.VerifyJWT(token);
     }
+
+    async LoginV2(payload: LoginPayload): Promise<string> {
+        const user = await this.repository.findOne({
+            where: {
+                username: payload.username
+            }
+        });
+        if(!user) throw EntityNotFoundError;
+        if(!this.encrypter.VerifyPasswordV2(payload.password, user.password)) throw IncorrectPasswordError;
+        const userData: Partial<User> = {
+            id: user.id,
+            full_name: user.full_name,
+            email: user.email,
+            username: user.username,
+            user_type: user.user_type
+        };
+        return this.encrypter.CreateJWT(userData);
+    }
 };

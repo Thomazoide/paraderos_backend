@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { UserController } from "src/controllers/user.controller";
+import { UserController, UserControllerV2 } from "src/controllers/user.controller";
 import { User } from "src/entities/user.entity";
 import { UserService } from "src/services/user.service";
 import { GpsSocket } from "src/sockets/gps.socket";
@@ -12,7 +12,8 @@ import { GpsSocket } from "src/sockets/gps.socket";
         ])
     ],
     controllers: [
-        UserController
+        UserController,
+        UserControllerV2
     ],
     providers: [
         UserService,
