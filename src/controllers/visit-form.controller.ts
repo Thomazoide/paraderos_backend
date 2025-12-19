@@ -3,7 +3,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { VisitForm } from "src/entities/visit-form.entity";
 import { VisitFormService } from "src/services/visit-form.service";
 import { FileNotAccepted } from "src/types/errors";
-import { ResponsePayload } from "src/types/types";
+import { CloseVisitFormPayload, ResponsePayload } from "src/types/types";
 
 @Controller("formularios/v1")
 export class VisitFormController {
@@ -123,6 +123,50 @@ export class VisitFormController {
             return {
                 message: `Formularios creados por el usuario #${id}`,
                 data: await this.service.GetByUserID(id),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                error: true
+            };
+        }
+    };
+};
+
+@Controller("formularios/v2")
+export class VisitFormControllerV2 {
+
+    constructor(
+        private readonly service: VisitFormService
+    ){};
+
+    @Post("crear")
+    async CreateVisitForm(
+        data: Partial<VisitForm>
+    ): Promise<ResponsePayload<VisitForm>> {
+        try {
+            return {
+                message: "Formulario creado",
+                data: await this.service.CreateVisitFormV2(data),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                error: true
+            };
+        }
+    };
+
+    @Post("cerrar")
+    async CloseVisitForm(
+        data: CloseVisitFormPayload
+    ): Promise<ResponsePayload<VisitForm>> {
+        try {
+            return {
+                message: "Formulario completado",
+                data: await this.service.FinishVisitFormV2(data),
                 error: false
             };
         } catch (err) {

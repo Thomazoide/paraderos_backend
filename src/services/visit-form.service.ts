@@ -7,6 +7,7 @@ import { AmazonBucketNameNotFound, EntityNotFoundError } from "src/types/errors"
 import { Repository } from "typeorm";
 import { extension as getExtension } from "mime-types";
 import { randomUUID } from "crypto";
+import { CloseVisitFormPayload } from "src/types/types";
 
 @Injectable()
 export class VisitFormService {
@@ -25,6 +26,29 @@ export class VisitFormService {
         this.s3 = new S3Client({
             region: this.region
         });
+    };
+
+    async CreateVisitFormV2(
+        data: Partial<VisitForm>
+    ): Promise<VisitForm> {
+        return await this.repository.save(data);
+    };
+
+    async FinishVisitFormV2(
+        data: CloseVisitFormPayload
+    ): Promise<VisitForm> {
+        const visitForm = await this.repository.findOne({
+            where: {
+                id: data.id
+            }
+        });
+        if(!visitForm) throw EntityNotFoundError;
+        visitForm.picAfterURL = data.picStr;
+        const fullComment = `Comentario de llegada:\n${visitForm.description}\nComentario de cierre:\n${data.commentP2}`;
+        visitForm.description = fullComment;
+        visitForm.completed = true;
+        visitForm.completion_date = new Date().toISOString();
+        return await this.repository.save(visitForm);
     };
 
     async CreateVisitForm(

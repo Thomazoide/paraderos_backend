@@ -37,3 +37,9 @@ export interface UpdatePositionPayload {
 export interface RequestPositionPayload {
     id: number;
 };
+
+export interface CloseVisitFormPayload {
+    id: number;
+    commentP2: string;
+    picStr: string;
+};
