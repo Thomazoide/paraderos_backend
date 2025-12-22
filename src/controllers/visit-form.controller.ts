@@ -143,6 +143,7 @@ export class VisitFormControllerV2 {
 
     @Post("crear")
     async CreateVisitForm(
+        @Body()
         data: Partial<VisitForm>
     ): Promise<ResponsePayload<VisitForm>> {
         try {
@@ -152,6 +153,7 @@ export class VisitFormControllerV2 {
                 error: false
             };
         } catch (err) {
+            console.log(err);
             return {
                 message: (err as Error).message,
                 error: true
@@ -161,6 +163,7 @@ export class VisitFormControllerV2 {
 
     @Post("cerrar")
     async CloseVisitForm(
+        @Body()
         data: CloseVisitFormPayload
     ): Promise<ResponsePayload<VisitForm>> {
         try {

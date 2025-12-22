@@ -8,6 +8,8 @@ import { Repository } from "typeorm";
 import { extension as getExtension } from "mime-types";
 import { randomUUID } from "crypto";
 import { CloseVisitFormPayload } from "src/types/types";
+import * as zlib from "zlib";
+import { promisify } from "util";
 
 @Injectable()
 export class VisitFormService {
@@ -15,6 +17,8 @@ export class VisitFormService {
     private bucket: string;
     private publicBaseURL: string;
     private region: string;
+    private gzip: (input: zlib.InputType) => Promise<Buffer>;
+    private gunzip: (input: zlib.InputType) => Promise<Buffer>;
     constructor(
         @InjectRepository(VisitForm)
         private readonly repository: Repository<VisitForm>,
@@ -26,12 +30,16 @@ export class VisitFormService {
         this.s3 = new S3Client({
             region: this.region
         });
+        this.gzip = promisify(zlib.gzip);
+        this.gunzip = promisify(zlib.gunzip);
     };
 
     async CreateVisitFormV2(
         data: Partial<VisitForm>
     ): Promise<VisitForm> {
-        return await this.repository.save(data);
+        const aux = data;
+        aux.picBeforeURL = "";
+        return await this.repository.save(aux);
     };
 
     async FinishVisitFormV2(
@@ -43,7 +51,7 @@ export class VisitFormService {
             }
         });
         if(!visitForm) throw EntityNotFoundError;
-        visitForm.picAfterURL = data.picStr;
+        visitForm.picAfterURL = "";
         const fullComment = `Comentario de llegada:\n${visitForm.description}\nComentario de cierre:\n${data.commentP2}`;
         visitForm.description = fullComment;
         visitForm.completed = true;
