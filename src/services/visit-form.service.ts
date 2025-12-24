@@ -105,7 +105,10 @@ export class VisitFormService {
 
     async GetByUserID(userId: number): Promise<VisitForm[]> {
         return await this.repository.find({
-            where: {userId}
+            where: {userId},
+            relations: [
+                "busStop"
+            ]
         });
     }
 
