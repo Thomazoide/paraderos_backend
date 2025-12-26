@@ -179,4 +179,23 @@ export class VisitFormControllerV2 {
             };
         }
     };
+
+    @Get("find/:id")
+    async FindByID(
+        @Param("id", ParseIntPipe)
+        id: number
+    ): Promise<ResponsePayload<VisitForm>> {
+        try {
+            return {
+                message: "Formulario encontrado",
+                data: await this.service.FindByID(id),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                error: true
+            };
+        }
+    };
 };

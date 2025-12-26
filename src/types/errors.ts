@@ -29,3 +29,4 @@ export class WebSocketExceptionFilter extends BaseWsExceptionFilter {
 };
 export const AmazonBucketNameNotFound = new Error("S3_BUCKET_NAME no está configurado en las variables de entorno");
 export const FileNotAccepted = new BadRequestException("solo se permiten archivos de imagen");
+export const AlreadyVisitedBusStop = new Error("Este paradero ya está marcado como visitado en la orden de trabajo");

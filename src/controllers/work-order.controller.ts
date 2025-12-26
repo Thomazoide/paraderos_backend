@@ -44,6 +44,28 @@ export class WorkOrderController {
         }
     };
 
+    @Post("agregar-paradero-visitado")
+    async AddVisitStop(
+        @Body()
+        updateData: {
+            workOrder: WorkOrder;
+            busStopID: number;
+        }
+    ): Promise<ResponsePayload<WorkOrder>> {
+        try {
+            return {
+                message: "Orden actualizada",
+                data: await this.service.AddVisitedStopID(updateData),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                error: true
+            };
+        }
+    };
+
     @Get("buscar/:id")
     async FindByID(
         @Param("id", ParseIntPipe)

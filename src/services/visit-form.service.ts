@@ -110,6 +110,17 @@ export class VisitFormService {
                 "busStop"
             ]
         });
+    };
+
+    async FindByID(id: number): Promise<VisitForm> {
+        return await this.repository.findOne({
+            where: {
+                id
+            },
+            relations: [
+                "busStop"
+            ]
+        });
     }
 
     private async UploadMulterFileToS3(

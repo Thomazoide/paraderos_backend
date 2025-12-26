@@ -1,11 +1,13 @@
 import { UseFilters } from "@nestjs/common";
 import { MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server } from "socket.io";
+import { Public } from "src/decorators/public.decorator";
 import { User } from "src/entities/user.entity";
 import { UserService } from "src/services/user.service";
 import { EntityNotFoundError, WebSocketExceptionFilter } from "src/types/errors";
 import { RequestPositionPayload, ResponsePayload, UpdatePositionPayload } from "src/types/types";
 
+@Public()
 @WebSocketGateway({namespace: "/gps"})
 @UseFilters(WebSocketExceptionFilter)
 export class GpsSocket {
