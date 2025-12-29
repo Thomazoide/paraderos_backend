@@ -51,6 +51,7 @@ export class UserService {
         return await this.repository.save(newUser);
     }
 
+    //Obsoleto
     async CreateUser(data: Partial<User>): Promise<User> {
         const newUser = data;
         newUser.username = await this.CreateUsername(data.full_name);
@@ -60,7 +61,7 @@ export class UserService {
 
     async GetAllUsers(): Promise<User[]> {
         return await this.repository.find({
-            select: ["id", "full_name", "email", "username", "user_type"]
+            select: ["id", "full_name", "email", "username", "user_type", "lat", "lng", "lastUpdated"]
         });
     };
 
@@ -77,6 +78,7 @@ export class UserService {
         return await this.repository.save(updatedUser);
     };
 
+    //Obsoleto
     async UpdatePassword(payload: UpdatePasswordPayload): Promise<User> {
         const user = await this.repository.findOne({
             where: {
