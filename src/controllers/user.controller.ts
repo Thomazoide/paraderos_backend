@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Param, ParseIntPipe } from "@nestjs/common";
 import { Public } from "src/decorators/public.decorator";
 import { User } from "src/entities/user.entity";
 import { UserService } from "src/services/user.service";
@@ -83,6 +83,7 @@ export class UserController {
             };
         }
     };
+
 };
 
 @Controller("usuarios/v2")
@@ -125,6 +126,51 @@ export class UserControllerV2 {
         } catch (err) {
             return {
                 message: (err as Error).message,
+                error: true
+            };
+        }
+    };
+
+    @Get(":id")
+    async GetUserByID(
+        @Param("id", ParseIntPipe)
+        id: number
+    ): Promise<ResponsePayload<User>> {
+        try {
+            return {
+                message: "Usuario encontrado",
+                data: await this.service.GetUserByID(id),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                error: true
+            };
+        }
+    };
+
+    @Public()
+    @Post("update-password-to-v2")
+    async UpdatePasswordHashingToV2(
+        @Body()
+        payload: {
+            userID: number;
+            newPassword: string;
+        }
+    ): Promise<ResponsePayload<boolean>> {
+        try {
+            const result = await this.service.UpdatePasswordHashingToV2(payload.newPassword, payload.userID);
+            if(!result) throw new Error("Error al actualizar metodo de encriptado");
+            return {
+                message: "Contraseña actualizada",
+                data: result,
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: (err as Error).message,
+                data: false,
                 error: true
             };
         }

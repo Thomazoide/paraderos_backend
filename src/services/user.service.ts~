@@ -133,18 +133,4 @@ export class UserService {
         user.lastUpdated = payload.timestamp;
         return await this.repository.save(user);
     };
-
-    async UpdatePasswordHashingToV2(newPassword: string, userID: number): Promise<boolean> {
-        const exists = await this.repository.findOne({
-            where: {
-                id: userID
-            }
-        });
-        if(!exists) throw EntityNotFoundError;
-        const newHash = this.encrypter.EncryptPasswordV2(newPassword);
-        exists.password = newHash;
-        const updatedUser = await this.repository.save(exists);
-        if(updatedUser.password !== newHash) return false;
-        return true;
-    };
 };
