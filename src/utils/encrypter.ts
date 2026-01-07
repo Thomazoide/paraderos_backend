@@ -20,7 +20,7 @@ export class Encrypter {
     };
 
     VerifyPasswordV2(password: string, encryptedPassword: string): boolean {
-        return compareSync(password, encryptedPassword);
+        return compareSync(`${password}${this.Pepper}`, encryptedPassword);
     };
 
     EncryptPassword(password: string): string {
