@@ -107,7 +107,8 @@ export class VisitFormService {
         return await this.repository.find({
             where: {userId},
             relations: [
-                "busStop"
+                "busStop",
+                
             ]
         });
     };

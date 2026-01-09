@@ -15,7 +15,8 @@ export class WorkOrderService {
         return await this.repository.find({
             relations: [
                 "route",
-                "user_final"
+                "user_final",
+                "forms"
             ]
         });
     };
@@ -32,7 +33,8 @@ export class WorkOrderService {
             },
             relations: [
                 "route",
-                "user_final"
+                "user_final",
+                "forms"
             ]
         });
     };
@@ -43,7 +45,8 @@ export class WorkOrderService {
                 route_id
             },
             relations: [
-                "user_final"
+                "user_final",
+                "forms"
             ]
         });
     };
@@ -67,7 +70,7 @@ export class WorkOrderService {
                 id: updateData.workOrder.id
             },
             relations: [
-                "route"
+                "route",
             ]
         });
         if(!exist) throw EntityNotFoundError;

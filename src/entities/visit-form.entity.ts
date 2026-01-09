@@ -2,14 +2,15 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "t
 import { BusStop } from "./bus-stop.entity";
 import { Route } from "./route.entity";
 import { User } from "./user.entity";
+import { WorkOrder } from "./work-order.entity";
 
 @Entity()
 export class VisitForm {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column({name: "pic_before_url"})
+    @Column({name: "pic_before_url", type: "longtext"})
     picBeforeURL: string;
-    @Column({name: "pic_after_url", nullable: true, default: null})
+    @Column({name: "pic_after_url", nullable: true, default: null, type: "longtext"})
     picAfterURL: string | null;
     @Column()
     description: string;
@@ -34,4 +35,9 @@ export class VisitForm {
     user: User;
     @Column({default: false})
     completed: boolean;
+    @Column({name: "work_order_id", nullable: true, default: null})
+    workOrderId: number;
+    @ManyToOne( () => WorkOrder, wo => wo.forms, {nullable: true} )
+    @JoinColumn({name: "work_order_id"})
+    work_order: WorkOrder;
 };

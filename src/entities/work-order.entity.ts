@@ -1,6 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Route } from "./route.entity";
 import { User } from "./user.entity";
+import { VisitForm } from "./visit-form.entity";
 
 @Entity()
 export class WorkOrder {
@@ -24,4 +25,6 @@ export class WorkOrder {
     user_final: User | null;
     @Column({type: "json", default: null})
     stops_visited: number[] | null;
+    @OneToMany( () => VisitForm, vf => vf.work_order, {nullable: true} )
+    forms: VisitForm[];
 };
