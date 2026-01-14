@@ -43,3 +43,8 @@ export interface CloseVisitFormPayload {
     commentP2: string;
     picStr: string;
 };
+
+export interface Base64Pics {
+    picBefore: string;
+    picAfter: string;
+}

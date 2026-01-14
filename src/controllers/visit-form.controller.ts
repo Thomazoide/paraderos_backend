@@ -3,7 +3,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { VisitForm } from "src/entities/visit-form.entity";
 import { VisitFormService } from "src/services/visit-form.service";
 import { FileNotAccepted } from "src/types/errors";
-import { CloseVisitFormPayload, ResponsePayload } from "src/types/types";
+import { Base64Pics, CloseVisitFormPayload, ResponsePayload } from "src/types/types";
+import { ParseJSONPipe } from "src/utils/parse-json.pipe";
 
 @Controller("formularios/v1")
 export class VisitFormController {
@@ -22,7 +23,7 @@ export class VisitFormController {
         }
     }))
     async CreateVisitForm(
-        @Body()
+        @Body("payload", ParseJSONPipe)
         data: Partial<VisitForm>,
         @UploadedFile()
         file: {
@@ -63,12 +64,14 @@ export class VisitFormController {
             buffer: Buffer;
             mimetype?: string;
             originalname?: string;
-        }
+        },
+        @Body("finalComment")
+        finalComment: string
     ): Promise<ResponsePayload<VisitForm>> {
         try {
             return {
                 message: "Formulario cerrado",
-                data: await this.service.FinishVisitForm(file, id),
+                data: await this.service.FinishVisitForm(finalComment, file, id),
                 error: false
             };
         } catch (err) {
@@ -198,4 +201,28 @@ export class VisitFormControllerV2 {
             };
         }
     };
+
+    @Get("get-pictures/:id")
+    async GetBase64Pictures(
+        @Param("id", ParseIntPipe)
+        formID: number
+    ): Promise<ResponsePayload<Base64Pics>> {
+        try {
+            const result = await this.service.GetBase64Pictures(formID);
+            let message = "Fotos encontradas";
+            if(result.picAfter === "" && result.picBefore === "") {
+                message = "Formulario sin fotos asociadas";
+            } 
+            return {
+                message,
+                data: result,
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: err instanceof Error ? err.message : "Error desconocido",
+                error: true
+            };
+        }
+    }
 };

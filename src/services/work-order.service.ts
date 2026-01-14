@@ -74,6 +74,7 @@ export class WorkOrderService {
             ]
         });
         if(!exist) throw EntityNotFoundError;
+        if(!exist.stops_visited) exist.stops_visited = [];
         const idSet = new Set(Array.from(exist.stops_visited));
         if(idSet.has(updateData.busStopID)) throw AlreadyVisitedBusStop;
         exist.stops_visited.push(updateData.busStopID);

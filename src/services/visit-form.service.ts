@@ -1,38 +1,20 @@
-import { PutObjectCommand, PutObjectCommandInput, S3Client } from "@aws-sdk/client-s3";
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { VisitForm } from "src/entities/visit-form.entity";
-import { AmazonBucketNameNotFound, EntityNotFoundError } from "src/types/errors";
+import { EntityNotFoundError } from "src/types/errors";
 import { Repository } from "typeorm";
 import { extension as getExtension } from "mime-types";
 import { randomUUID } from "crypto";
-import { CloseVisitFormPayload } from "src/types/types";
-import * as zlib from "zlib";
-import { promisify } from "util";
+import { Base64Pics, CloseVisitFormPayload } from "src/types/types";
+import * as fs from "fs";
+import { join, sep } from "path";
 
 @Injectable()
 export class VisitFormService {
-    private s3: S3Client;
-    private bucket: string;
-    private publicBaseURL: string;
-    private region: string;
-    private gzip: (input: zlib.InputType) => Promise<Buffer>;
-    private gunzip: (input: zlib.InputType) => Promise<Buffer>;
     constructor(
         @InjectRepository(VisitForm)
         private readonly repository: Repository<VisitForm>,
-        private readonly env: ConfigService
-    ){
-        this.region = this.env.get<string>("AWS_REGION");
-        this.bucket = this.env.get<string>("BUCKET_NAME");
-        this.publicBaseURL = this.env.get<string>("S3_PUBLIC_BASE_URL") || (this.bucket && this.region ? `https://${this.bucket}.s3.${this.region}.amazonaws.com` : "");
-        this.s3 = new S3Client({
-            region: this.region
-        });
-        this.gzip = promisify(zlib.gzip);
-        this.gunzip = promisify(zlib.gunzip);
-    };
+    ){};
 
     async CreateVisitFormV2(
         data: Partial<VisitForm>
@@ -67,7 +49,7 @@ export class VisitFormService {
             originalname?: string;
         }
     ): Promise<VisitForm> {
-        const picURL = await this.UploadMulterFileToS3(file, data.busStopId, data.routeId);
+        const picURL = await this.SaveMulterFileLocally(file, data.busStopId, data.routeId);
         const newVisitForm = this.repository.create({
             ...data,
             picBeforeURL: picURL ?? null
@@ -76,6 +58,7 @@ export class VisitFormService {
     };
 
     async FinishVisitForm(
+        finalComment: string,
         file: {
             buffer: Buffer;
             mimetype?: string;
@@ -87,9 +70,11 @@ export class VisitFormService {
             where: {id}
         });
         if(!visitForm) throw EntityNotFoundError;
-        const picURL = await this.UploadMulterFileToS3(file, visitForm.busStopId, visitForm.routeId);
+        const picURL = await this.SaveMulterFileLocally(file, visitForm.busStopId, visitForm.routeId);
         visitForm.picAfterURL = picURL;
+        visitForm.description = "Comentario inicial:\n" + visitForm.description + "\n" + "Comentario final:\n" + finalComment;
         visitForm.completed = true;
+        visitForm.completion_date = new Date().toISOString();
         return await this.repository.save(visitForm);
     };
 
@@ -122,9 +107,39 @@ export class VisitFormService {
                 "busStop"
             ]
         });
+    };
+
+    async GetBase64Pictures(formID: number): Promise<Base64Pics> {
+        const form = await this.repository.findOne({
+            where: {
+                id: formID
+            }
+        });
+        if(!form) throw EntityNotFoundError;
+        const uploadsRoot = process.cwd();
+        const picBeforePath = form.picBeforeURL
+            ? join(uploadsRoot, form.picBeforeURL)
+            : null;
+        const picAfterPath = form.picAfterURL
+            ? join(uploadsRoot, form.picAfterURL)
+            : null;
+        let picBeforeBase64 = "";
+        let picAfterBase64 = "";
+        if(picBeforePath && fs.existsSync(picBeforePath)) {
+            const buffer = await fs.promises.readFile(picBeforePath);
+            picBeforeBase64 = buffer.toString("base64");
+        }
+        if(picAfterPath && fs.existsSync(picAfterPath)) {
+            const buffer = fs.readFileSync(picAfterPath);
+            picAfterBase64 = buffer.toString("base64");
+        }
+        return {
+            picBefore: picBeforeBase64,
+            picAfter: picAfterBase64
+        };
     }
 
-    private async UploadMulterFileToS3(
+    private async SaveMulterFileLocally(
         file: {
             buffer: Buffer;
             mimetype?: string;
@@ -133,21 +148,17 @@ export class VisitFormService {
         busStopId?: number,
         routeId?: number
     ): Promise<string> {
-        if(!this.bucket) throw AmazonBucketNameNotFound;
+        if(!file?.buffer) return "";
+        const uploadsRoot = join(process.cwd(), "uploads");
         const mimeType = file.mimetype || "application/octet-stream";
         const ext = (getExtension(mimeType) as string) || (file.originalname?.split(".").pop() || "bin");
-        const key = `visit-forms/parada-${busStopId ?? "parada-desconocida"}/ruta-${routeId ?? "ruta-desconocida"}/${randomUUID()}.${ext}`;
-        const putParams: PutObjectCommandInput = {
-            Bucket: this.bucket,
-            Key: key,
-            Body: file.buffer,
-            ContentType: mimeType
-        };
-        const acl = this.env.get("S3_OBJECT_ACL") as PutObjectCommandInput["ACL"] | undefined;
-        if(acl) putParams.ACL = acl;
-        await this.s3.send(new PutObjectCommand(putParams));
-        return this.publicBaseURL
-            ? `${this.publicBaseURL}/${key}`
-            : `https://${this.bucket}.s3.amazonaws.com/${key}`;
+        const key = `visit-forms/parada-${busStopId ?? "parada-desconocida"}/${randomUUID()}.${ext}`;
+        const absDir = join(uploadsRoot, `visit-forms/parada-${busStopId ?? "parada-desconocida"}/ruta-${routeId ?? "ruta-desconocida"}`);
+        fs.mkdirSync(absDir, { recursive: true });
+        const absPath = join(uploadsRoot, key);
+        await fs.promises.writeFile(absPath, file.buffer);
+        // Return a URL-like path for later static serving (e.g., via ServeStaticModule)
+        const relPath = absPath.replace(uploadsRoot, "").split(sep).join("/");
+        return `/uploads${relPath}`;
     };
 };
