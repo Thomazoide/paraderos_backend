@@ -66,6 +66,25 @@ export class WorkOrderController {
         }
     };
 
+    @Get("buscar/usuario/:id")
+    async FindByUserID(
+        @Param("id", ParseIntPipe)
+        id: number
+    ): Promise<ResponsePayload<WorkOrder[]>> {
+        try {
+            return {
+                message: "Órdenes encontradas",
+                data: await this.service.GetByUserID(id),
+                error: false
+            };
+        } catch (err) {
+            return {
+                message: err instanceof Error ? err.message : "Error desconocido",
+                error: true
+            };
+        }
+    };
+
     @Get("buscar/:id")
     async FindByID(
         @Param("id", ParseIntPipe)

@@ -83,7 +83,20 @@ export class WorkOrderService {
             exist.completada = true;
         }
         return await this.repository.save(exist);
-    }
+    };
+
+    async GetByUserID(userID: number): Promise<WorkOrder[]> {
+        const exists = await this.repository.find({
+            where: {
+                user_id: userID
+            },
+            relations: [
+                "route"
+            ]
+        });
+        if(!exists) throw EntityNotFoundError;
+        return exists;
+    };
 
     private checkCompletion(routeArray: number[], visitedArray: number[]): boolean {
         const routeSet = new Set(routeArray);
@@ -93,6 +106,6 @@ export class WorkOrderService {
             if(!routeSet.has(id)) return false;
         }
         return true;
-    }
+    };
 
 };
