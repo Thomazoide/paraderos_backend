@@ -85,7 +85,13 @@ export class VisitFormService {
     };
 
     async GetAllVisitForms(): Promise<VisitForm[]> {
-        return await this.repository.find();
+        return await this.repository.find({
+            relations: [
+                "route",
+                "busStop",
+                "user"
+            ]
+        });
     };
 
     async GetByUserID(userId: number): Promise<VisitForm[]> {
@@ -93,7 +99,8 @@ export class VisitFormService {
             where: {userId},
             relations: [
                 "busStop",
-                
+                "route",
+                "user"
             ]
         });
     };
