@@ -25,5 +25,9 @@ export class ReportService {
         private readonly reportRepository: Repository<Report>
     ){}
 
+    async GetReports(): Promise<Report[]> {
+        return await this.reportRepository.find();
+    };
+
 
 };
