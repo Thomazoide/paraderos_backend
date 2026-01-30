@@ -14,6 +14,7 @@ import { AuthModule } from './modules/auth.module';
 import { VisitFormModule } from './modules/visit-form.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/passport.guard';
+import { ReportModule } from './modules/report.module';
 
 
 @Module({
@@ -33,7 +34,8 @@ import { JwtAuthGuard } from './guards/passport.guard';
     WorkOrderModule,
     RouteModule,
     UserModule,
-    VisitFormModule
+    VisitFormModule,
+    ReportModule
   ],
   controllers: [
     AppController

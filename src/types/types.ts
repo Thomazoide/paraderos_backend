@@ -47,4 +47,6 @@ export interface CloseVisitFormPayload {
 export interface Base64Pics {
     picBefore: string;
     picAfter: string;
-}
+};
+
+export type sinceDate = "day" | "week" | "month";
