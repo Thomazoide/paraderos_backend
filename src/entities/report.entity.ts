@@ -12,4 +12,6 @@ export class Report {
     createdAt: string; //ISOString date
     @Column()
     userName: string; //user full name
+    @Column()
+    reportType: string;
 };

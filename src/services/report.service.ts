@@ -65,14 +65,18 @@ export class ReportService {
         if(!user) throw EntityNotFoundError;
         const now = new Date();
         let sinceDate: Date;
+        let reportType;
         if(since === "day") {
             sinceDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            reportType = `Del dia ${sinceDate.toDateString()}`;
         } else if(since === "week") {
             sinceDate = new Date(now);
             sinceDate.setDate(now.getDate() - 7);
+            reportType = "Semanal";
         } else {
             sinceDate = new Date(now);
             sinceDate.setMonth(now.getMonth() - 1);
+            reportType = `Mensual(${sinceDate.getMonth()})`
         }
         // estadisticas formularios de visita
         const visitFormsCreated = await this.visitFormRepository.count({
@@ -155,7 +159,8 @@ export class ReportService {
             fileURL: filepath,
             createdAt: new Date().toISOString(),
             userId: user.id,
-            userName: user.username
+            userName: user.username,
+            reportType
         };
         
         return await this.reportRepository.save(report);

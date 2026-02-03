@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { Report } from "src/entities/report.entity";
 import { ReportService } from "src/services/report.service";
 import { ResponsePayload, sinceDate } from "src/types/types";
@@ -8,7 +8,7 @@ export class ReportController {
     constructor(
         private readonly service: ReportService
     ){};
-    @Get(":sinceDate/:userID")
+    @Get("generar/:sinceDate/:userID")
     async GenerateReport(
         @Param("sinceDate")
         sinceDate: sinceDate,
@@ -33,6 +33,43 @@ export class ReportController {
             return {
                 message: "Error al crear/leer archivo",
                 error: true
+            };
+        }
+    }
+
+    @Get()
+    async GetAllReports(): Promise<ResponsePayload<Report[]>> {
+        try {
+            return {
+                message: "Reportes encontrados",
+                error: false,
+                data: await this.service.GetReports()
+            };
+        } catch (e) {
+            return {
+                message: (e instanceof Error ? e.message : "Error desconocido"),
+                error: true
+            };
+        }
+    }
+
+    @Post("descargar")
+    async DownloadReport(
+        @Body()
+        body: {
+            fileURL: string;
+        }
+    ): Promise<ResponsePayload<string>> {
+        try {
+            return {
+                message: "Reporte",
+                data: await this.service.GetReportBase64(body.fileURL),
+                error: false
+            };
+        } catch (e) {
+            return {
+                message: (e instanceof Error ? e.message : "Error desconocido"),
+                error : true
             };
         }
     }
