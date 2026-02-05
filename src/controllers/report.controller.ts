@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { Report } from "src/entities/report.entity";
 import { ReportService } from "src/services/report.service";
 import { ResponsePayload, sinceDate } from "src/types/types";
@@ -31,7 +31,7 @@ export class ReportController {
             };
         } catch (e) {
             return {
-                message: "Error al crear/leer archivo",
+                message: e instanceof Error ? e.message : "Error al crear/leer archivo",
                 error: true
             };
         }
@@ -70,6 +70,27 @@ export class ReportController {
             return {
                 message: (e instanceof Error ? e.message : "Error desconocido"),
                 error : true
+            };
+        }
+    }
+
+    @Delete("eliminar/:id")
+    async DeleteReport(
+        @Param("id", ParseIntPipe)
+        reportID: number
+    ): Promise<ResponsePayload<boolean>> {
+        try {
+            await this.service.DeleteReport(reportID);
+            return {
+                message: `Reporte #${reportID} eliminado con éxito`,
+                data: true,
+                error: false
+            };
+        } catch (e) {
+            return {
+                message: e instanceof Error ? e.message : "Error desconocido",
+                data: false,
+                error: true
             };
         }
     }

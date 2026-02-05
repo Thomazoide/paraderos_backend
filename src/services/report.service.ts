@@ -11,6 +11,7 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import { EntityNotFoundError } from "src/types/errors";
 import { sinceDate } from "src/types/types";
+import { ParseMonth } from "src/utils/month-parser";
 
 @Injectable()
 export class ReportService {
@@ -52,6 +53,17 @@ export class ReportService {
         return lines.join("\r\n");
     };
 
+    async DeleteReport(reportID: number): Promise<void> {
+        const exists = await this.reportRepository.findOne({
+            where: {
+                id: reportID
+            }
+        });
+        if(!exists) throw EntityNotFoundError;
+        await this.reportRepository.delete(exists);
+        return;
+    }
+
     async GetReports(): Promise<Report[]> {
         return await this.reportRepository.find();
     };
@@ -65,7 +77,7 @@ export class ReportService {
         if(!user) throw EntityNotFoundError;
         const now = new Date();
         let sinceDate: Date;
-        let reportType;
+        let reportType: string;
         if(since === "day") {
             sinceDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
             reportType = `Del dia ${sinceDate.toDateString()}`;
@@ -76,7 +88,7 @@ export class ReportService {
         } else {
             sinceDate = new Date(now);
             sinceDate.setMonth(now.getMonth() - 1);
-            reportType = `Mensual(${sinceDate.getMonth()})`
+            reportType = `Mensual(${ParseMonth(sinceDate.getMonth())})`
         }
         // estadisticas formularios de visita
         const visitFormsCreated = await this.visitFormRepository.count({
