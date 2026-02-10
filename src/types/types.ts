@@ -26,9 +26,19 @@ export interface LoginPayload {
     username: string;
     password: string;
 };
+export class LoginPayloadDTO {
+    @ApiProperty()
+    username: string;
+    @ApiProperty()
+    password: string;
+}
 export interface VerifyTokenPayload {
     token: string;
 };
+export class VerifyTokenPayloadDTO {
+    @ApiProperty()
+    token: string;
+}
 export interface UpdatePositionPayload {
     id: number;
     lat: number;

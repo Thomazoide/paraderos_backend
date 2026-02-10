@@ -1,14 +1,20 @@
 import { Body, Controller, Post } from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Public } from "src/decorators/public.decorator";
 import { AuthService } from "src/services/auth.service";
-import { LoginPayload, ResponsePayload, VerifyTokenPayload } from "src/types/types";
+import { LoginPayload, LoginPayloadDTO, ResponsePayload, ResponsePayloadDTO, VerifyTokenPayload, VerifyTokenPayloadDTO } from "src/types/types";
 
+@ApiTags("Autorización")
 @Controller("auth/v1")
 export class AuthController {
     constructor(
         private readonly service: AuthService
     ){};
 
+    @ApiOperation({
+        deprecated: true,
+        description: "Api deprecada por mala encriptación de contraseñas"
+    })
     @Public()
     @Post("login")
     async Login(
@@ -29,6 +35,16 @@ export class AuthController {
         }
     };
 
+    @ApiOperation({
+        description: "Se encarga de verificar si un token es valido o está vencido"
+    })
+    @ApiBody({
+        type: VerifyTokenPayloadDTO
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<boolean>
+    })
     @Public()
     @Post("verificar-token")
     async VerifyToken(
@@ -51,12 +67,24 @@ export class AuthController {
     };
 };
 
+@ApiTags("Autorización")
 @Controller("auth/v2")
 export class AuthControllerV2 {
     constructor(
         private readonly service: AuthService
     ){};
 
+    @ApiOperation({
+        description: "Inicio de sesión con nombre de usuario y contraseña"
+    })
+    @ApiBody({
+        type: LoginPayloadDTO
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<string>,
+        description: "Entrega un token de acceso al usuario para navegar durante 3 horas en la aplicación"
+    })
     @Public()
     @Post("login")
     async Login(

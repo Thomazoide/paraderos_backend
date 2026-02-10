@@ -1,8 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { API_AUTH_HEADER_NAME, AuthDocsConfig } from "src/constants/auth-docs-config";
 import { BusStop } from "src/entities/bus-stop.entity";
 import { BusStopService } from "src/services/bus-stop.service";
-import { ResponsePayload } from "src/types/types";
+import { ResponsePayload, ResponsePayloadDTO } from "src/types/types";
 
+@ApiTags("paraderos")
 @Controller("/paraderos/v1")
 export class BusStopController {
     constructor(
@@ -10,6 +13,19 @@ export class BusStopController {
     ){};
 
     //Para crear o actualizar
+    @ApiOperation({
+        description: "Crea o actualiza un paradero"
+    })
+    @ApiBody({
+        type: BusStop
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<BusStop>,
+        description: "Entrega el paradero creado/modificado"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
     @Post()
     async SaveBusStop(
         @Body()
@@ -29,6 +45,15 @@ export class BusStopController {
         }
     };
 
+    @ApiOperation({
+        description: "Entrega una lista con todos los paraderos"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<BusStop[]>
+    })
     @Get()
     async GetAllBusStops(): Promise<ResponsePayload<BusStop[]>> {
         try {
@@ -45,6 +70,20 @@ export class BusStopController {
         }
     };
 
+    @ApiOperation({
+        description: "Buscar paradero por código o ID"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "index",
+        example: "STRING code: \"PF108-j\" OR NUMBER ID: \"2\"",
+        description: "Puede ser el código del paradero como un string o simplemente el ID que tiene en BBDD"
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<BusStop>
+    })
     @Get("find/:index")
     async FindOneBusStop(
         @Param("index")
@@ -64,6 +103,20 @@ export class BusStopController {
         }
     };
 
+    @ApiOperation({
+        description: "Eliminar paradero por código o ID"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "index",
+        example: "STRING code: \"PF108-j\" OR NUMBER ID: \"2\"",
+        description: "Puede ser el código del paradero como un string o simplemente el ID que tiene en BBDD"
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<BusStop>
+    })
     @Delete("delete/:index")
     async DeleteBusStop(
         @Param("index")

@@ -1,14 +1,19 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Departure } from "src/entities/departure.entity";
 import { DepartureService } from "src/services/departure.service";
 import { CreateRegPayload, ResponsePayload } from "src/types/types";
 
+@ApiTags("salidas-deprecado")
 @Controller("salidas/v1")
 export class DepartureController {
     constructor(
         private readonly service: DepartureService
     ){};
 
+    @ApiOperation({
+        deprecated: true
+    })
     @Get()
     async GetAllDepartures(): Promise<ResponsePayload<Departure[]>> {
         try {
@@ -25,6 +30,9 @@ export class DepartureController {
         }
     };
     
+    @ApiOperation({
+        deprecated: true
+    })
     @Post()
     async SaveDeparture(
         @Body()
@@ -44,6 +52,9 @@ export class DepartureController {
         }
     };
 
+    @ApiOperation({
+        deprecated: true
+    })
     @Get("usuario/:id")
     async GetByUserID(
         @Param("id", ParseIntPipe)
@@ -63,6 +74,9 @@ export class DepartureController {
         }
     };
 
+    @ApiOperation({
+        deprecated: true
+    })
     @Get("paradero/:id")
     async GetByStopID(
         @Param("id", ParseIntPipe)

@@ -1,14 +1,19 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Entry } from "src/entities/entry.entity";
 import { EntryService } from "src/services/entry.service";
 import { CreateRegPayload, ResponsePayload } from "src/types/types";
 
+@ApiTags("entradas-deprecado")
 @Controller("entradas/v1")
 export class EntryController {
     constructor(
         private readonly service: EntryService
     ){};
 
+    @ApiOperation({
+            deprecated: true
+        })
     @Get()
     async GetAllEntries(): Promise<ResponsePayload<Entry[]>> {
         try {
@@ -25,6 +30,9 @@ export class EntryController {
         }
     };
 
+    @ApiOperation({
+        deprecated: true
+    })
     @Post()
     async SaveEntry(
         @Body()
@@ -44,6 +52,9 @@ export class EntryController {
         }
     };
 
+    @ApiOperation({
+        deprecated: true
+    })
     @Get("usuario/:id")
     async GetByUserID(
         @Param("id", ParseIntPipe)
@@ -63,6 +74,9 @@ export class EntryController {
         }
     };
 
+    @ApiOperation({
+        deprecated: true
+    })
     @Get("paradero/:id")
     async GetByStopID(
         @Param("id", ParseIntPipe)
