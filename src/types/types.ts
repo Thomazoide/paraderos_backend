@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { BusStop } from "src/entities/bus-stop.entity";
 import { User } from "src/entities/user.entity";
 
@@ -50,3 +51,12 @@ export interface Base64Pics {
 };
 
 export type sinceDate = "day" | "week" | "month";
+
+export class ResponsePayloadDTO<T> {
+    @ApiProperty()
+    message: string;
+    @ApiProperty()
+    data?: T;
+    @ApiProperty()
+    error: boolean;
+};
