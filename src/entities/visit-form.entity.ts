@@ -3,6 +3,7 @@ import { BusStop } from "./bus-stop.entity";
 import { Route } from "./route.entity";
 import { User } from "./user.entity";
 import { WorkOrder } from "./work-order.entity";
+import { ApiProperty } from "@nestjs/swagger";
 
 @Entity()
 export class VisitForm {
@@ -12,13 +13,17 @@ export class VisitForm {
     picBeforeURL: string;
     @Column({name: "pic_after_url", nullable: true, default: null, type: "longtext"})
     picAfterURL: string | null;
+    @ApiProperty()
     @Column()
     description: string;
+    @ApiProperty()
     @Column({name: "bus_stop_id"})
     busStopId: number;
     @Column({name: "user_id", nullable: true})
+    @ApiProperty()
     userId: number | null;
     @Column({nullable: true, default: null, name: "route_id"})
+    @ApiProperty()
     routeId: number | null;
     @Column()
     creation_date: string;

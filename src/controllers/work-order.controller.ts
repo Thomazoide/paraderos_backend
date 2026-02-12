@@ -1,8 +1,10 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { WorkOrder } from "src/entities/work-order.entity";
 import { WorkOrderService } from "src/services/work-order.service";
 import { ResponsePayload } from "src/types/types";
 
+@ApiTags("órdenes de trabajo")
 @Controller("ordenes/v1")
 export class WorkOrderController {
     constructor(

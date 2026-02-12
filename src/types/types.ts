@@ -60,6 +60,13 @@ export interface Base64Pics {
     picAfter: string;
 };
 
+export class Base64PicsDTO {
+    @ApiProperty()
+    picBefore: string;
+    @ApiProperty()
+    picAfter: string;
+}
+
 export type sinceDate = "day" | "week" | "month";
 
 export class ResponsePayloadDTO<T> {
@@ -69,4 +76,24 @@ export class ResponsePayloadDTO<T> {
     data?: T;
     @ApiProperty()
     error: boolean;
+};
+
+export class RegisterUserDTO {
+    @ApiProperty()
+    full_name: string;
+    @ApiProperty()
+    email: string;
+    @ApiProperty()
+    user_type: UserType;
+    @ApiProperty()
+    password: string;
+}
+
+export class UpdatePasswordPayloadDTO {
+    @ApiProperty()
+    oldPassword: string;
+    @ApiProperty()
+    newPassword: string;
+    @ApiProperty()
+    id: number;
 };
