@@ -21,3 +21,23 @@ export class Report {
     @Column()
     reportType: string;
 };
+
+export class ReportDTO {
+    constructor(){
+        this.id = 0;
+        this.fileURL = "/file/uri/to/object";
+        this.userId = 0;
+        this.userName = "user name";
+        this.reportType = "month";
+    }
+    @ApiProperty()
+    id: number;
+    @ApiProperty()
+    fileURL: string;
+    @ApiProperty()
+    userId: number;
+    @ApiProperty()
+    userName: string;
+    @ApiProperty()
+    reportType: string;
+}

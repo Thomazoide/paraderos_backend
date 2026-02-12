@@ -43,7 +43,12 @@ export class AuthController {
     })
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<boolean>
+        type: ResponsePayloadDTO<boolean>,
+        example: {
+            message: "Token válido",
+            data: true,
+            error: false
+        }
     })
     @Public()
     @Post("verificar-token")
@@ -83,6 +88,11 @@ export class AuthControllerV2 {
     @ApiResponse({
         status: 200,
         type: ResponsePayloadDTO<string>,
+        example: {
+            message: "Sesión iniciada",
+            data: "TOKEN DE ACCESO",
+            error: false
+        },
         description: "Entrega un token de acceso al usuario para navegar durante 3 horas en la aplicación"
     })
     @Public()

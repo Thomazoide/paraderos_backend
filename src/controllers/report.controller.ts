@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { API_AUTH_HEADER_NAME, AuthDocsConfig } from "src/constants/auth-docs-config";
-import { Report } from "src/entities/report.entity";
+import { Report, ReportDTO } from "src/entities/report.entity";
 import { ReportService } from "src/services/report.service";
 import { ResponsePayload, sinceDate, ResponsePayloadDTO } from "src/types/types";
 
@@ -38,7 +38,12 @@ export class ReportController {
     })
     @ApiResponse({
         status: 201,
-        type: ResponsePayloadDTO<Report>
+        type: ResponsePayloadDTO<ReportDTO>,
+        example: {
+            message: "Reporte creado",
+            data: new ReportDTO(),
+            error: false
+        }
     })
     @Get("generar/:sinceDate/:userID")
     async GenerateReport(
@@ -74,7 +79,15 @@ export class ReportController {
     })
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<Report>
+        type: ResponsePayloadDTO<ReportDTO>,
+        example: {
+            message: "Reportes encontrados",
+            data: [
+                new ReportDTO(),
+                new ReportDTO(),
+                "..."
+            ]
+        }
     })
     @ApiBearerAuth(API_AUTH_HEADER_NAME)
     @ApiHeader(AuthDocsConfig)
@@ -99,7 +112,12 @@ export class ReportController {
     })
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<string>
+        type: ResponsePayloadDTO<string>,
+        example: {
+            message: "Reporte",
+            data: "base64 string",
+            error: false
+        }
     })
     @ApiBearerAuth(API_AUTH_HEADER_NAME)
     @ApiHeader(AuthDocsConfig)
@@ -133,6 +151,15 @@ export class ReportController {
     })
     @ApiBearerAuth(API_AUTH_HEADER_NAME)
     @ApiHeader(AuthDocsConfig)
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<boolean>,
+        example: {
+            message: "Reporte #0 eliminado con éxito",
+            data: true,
+            error: false
+        }
+    })
     @Delete("eliminar/:id")
     async DeleteReport(
         @Param("id", ParseIntPipe)

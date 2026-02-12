@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { API_AUTH_HEADER_NAME, AuthDocsConfig } from "src/constants/auth-docs-config";
-import { Route } from "src/entities/route.entity";
+import { Route, RouteDTO } from "src/entities/route.entity";
 import { RouteService } from "src/services/route.service";
 import { ResponsePayload, ResponsePayloadDTO } from "src/types/types";
 
@@ -19,13 +19,13 @@ export class RouteController {
     @ApiHeader(AuthDocsConfig)
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<Route[]>,
+        type: ResponsePayloadDTO<RouteDTO[]>,
         example: {
             message: "Rutas encontradas",
             data: [
-                new Route(),
-                new Route(),
-                new Route()
+                new RouteDTO(),
+                new RouteDTO(),
+                new RouteDTO()
             ],
             error: false
         }
@@ -52,14 +52,14 @@ export class RouteController {
     @ApiBearerAuth(API_AUTH_HEADER_NAME)
     @ApiHeader(AuthDocsConfig)
     @ApiBody({
-        type: Route
+        type: RouteDTO
     })
     @ApiResponse({
         status: 201,
-        type: ResponsePayloadDTO<Route>,
+        type: ResponsePayloadDTO<RouteDTO>,
         example: {
             message: "Ruta creada/guardada",
-            data: new Route(),
+            data: new RouteDTO(),
             error: false
         }
     })
@@ -93,10 +93,10 @@ export class RouteController {
     })
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<Route>,
+        type: ResponsePayloadDTO<RouteDTO>,
         example: {
             message: "Ruta encontrada",
-            data: new Route(),
+            data: new RouteDTO(),
             error: false
         }
     })

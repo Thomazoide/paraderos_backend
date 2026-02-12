@@ -29,3 +29,23 @@ export class BusStop {
     @Column({nullable: true})
     lastVisited: string; //Fecha en formato ISO string
 };
+
+export class BusStopDTO {
+    constructor(){
+        this.id = 0;
+        this.lat = -71.0324;
+        this.lng = -71.3021;
+        this.codigo = "pf102-j";
+        this.description = "Eyzaguirre/German Ebbinghaus"
+    }
+    @ApiProperty()
+    id: number;
+    @ApiProperty()
+    lat: number;
+    @ApiProperty()
+    lng: number;
+    @ApiProperty()
+    codigo: string;
+    @ApiProperty()
+    description: string;
+}

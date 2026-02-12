@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { API_AUTH_HEADER_NAME, AuthDocsConfig } from "src/constants/auth-docs-config";
-import { BusStop } from "src/entities/bus-stop.entity";
+import { BusStop, BusStopDTO } from "src/entities/bus-stop.entity";
 import { BusStopService } from "src/services/bus-stop.service";
 import { ResponsePayload, ResponsePayloadDTO } from "src/types/types";
 
@@ -22,6 +22,11 @@ export class BusStopController {
     @ApiResponse({
         status: 200,
         type: ResponsePayloadDTO<BusStop>,
+        example: {
+            message: "Paraderos creado/actualizado",
+            data: new BusStopDTO(),
+            error: false
+        },
         description: "Entrega el paradero creado/modificado"
     })
     @ApiBearerAuth(API_AUTH_HEADER_NAME)
@@ -52,7 +57,16 @@ export class BusStopController {
     @ApiHeader(AuthDocsConfig)
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<BusStop[]>
+        type: ResponsePayloadDTO<BusStop[]>,
+        example: {
+            message: "Paraderos encontrados",
+            data: [
+                new BusStopDTO(),
+                new BusStopDTO(),
+                new BusStopDTO(),
+            ],
+            error: false
+        }
     })
     @Get()
     async GetAllBusStops(): Promise<ResponsePayload<BusStop[]>> {
@@ -82,7 +96,12 @@ export class BusStopController {
     })
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<BusStop>
+        type: ResponsePayloadDTO<BusStop>,
+        example: {
+            message: "Paradero encontrado",
+            data: new BusStopDTO(),
+            error: false
+        }
     })
     @Get("find/:index")
     async FindOneBusStop(
@@ -115,7 +134,12 @@ export class BusStopController {
     })
     @ApiResponse({
         status: 200,
-        type: ResponsePayloadDTO<BusStop>
+        type: ResponsePayloadDTO<BusStop>,
+        example: {
+            message: "Paradero '0' eliminado",
+            data: new BusStopDTO(),
+            error: false
+        }
     })
     @Delete("delete/:index")
     async DeleteBusStop(

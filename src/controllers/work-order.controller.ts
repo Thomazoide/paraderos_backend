@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { WorkOrder } from "src/entities/work-order.entity";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { API_AUTH_HEADER_NAME, AuthDocsConfig } from "src/constants/auth-docs-config";
+import { WorkOrder, WorkOrderDTO } from "src/entities/work-order.entity";
 import { WorkOrderService } from "src/services/work-order.service";
-import { ResponsePayload } from "src/types/types";
+import { ResponsePayload, ResponsePayloadDTO } from "src/types/types";
 
 @ApiTags("órdenes de trabajo")
 @Controller("ordenes/v1")
@@ -11,6 +12,20 @@ export class WorkOrderController {
         private readonly service: WorkOrderService
     ){};
 
+    @ApiOperation({
+        description: "Entrega una lista con todas las ordenes de trabajo y sus rutas, usuarios y formularios asociados"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<WorkOrder>,
+        example: {
+            message: "Órdenes encontradas",
+            data: [],
+            error: false
+        }
+    })
     @Get()
     async GetAll(): Promise<ResponsePayload<WorkOrder[]>> {
         try {
@@ -27,6 +42,23 @@ export class WorkOrderController {
         }
     };
 
+    @ApiOperation({
+        description: "API para crear una órden de trabajo"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiBody({
+        type: WorkOrderDTO
+    })
+    @ApiResponse({
+        status: 201,
+        type: ResponsePayloadDTO<WorkOrder>,
+        example: {
+            message: "Órden creada",
+            data: new WorkOrderDTO(),
+            error: false
+        }
+    })
     @Post()
     async SaveOrder(
         @Body()
