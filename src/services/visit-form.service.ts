@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { VisitForm } from "src/entities/visit-form.entity";
 import { EntityNotFoundError } from "src/types/errors";
@@ -8,13 +8,29 @@ import { randomUUID } from "crypto";
 import { Base64Pics, CloseVisitFormPayload } from "src/types/types";
 import * as fs from "fs";
 import { join, sep } from "path";
+import { Storage } from "@google-cloud/storage";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class VisitFormService {
+    private readonly storage: Storage;
+    private readonly bucketName: string;
+    private readonly logger: Logger;
     constructor(
         @InjectRepository(VisitForm)
         private readonly repository: Repository<VisitForm>,
-    ){};
+        
+        private readonly env: ConfigService
+    ){
+        this.storage = new Storage({
+            apiKey: this.env.get<string>("GCP_API_KEY")
+        });
+        this.bucketName = this.env.get<string>("GCS_BUCKET_NAME");
+        this.logger = new Logger(VisitFormService.name)
+        if(!this.bucketName){
+            this.logger.error("Nombre del bucket no encontrado");
+        }
+    };
 
     async CreateVisitFormV2(
         data: Partial<VisitForm>
@@ -164,8 +180,18 @@ export class VisitFormService {
         fs.mkdirSync(absDir, { recursive: true });
         const absPath = join(uploadsRoot, key);
         await fs.promises.writeFile(absPath, file.buffer);
-        // Return a URL-like path for later static serving (e.g., via ServeStaticModule)
         const relPath = absPath.replace(uploadsRoot, "").split(sep).join("/");
         return `/uploads${relPath}`;
     };
+
+    private async UploadFileToCS(
+        file: {
+            buffer: Buffer;
+            mimetype?: string;
+            originalname?: string;
+        },
+        busStopID?: number
+    ): Promise<string> {
+        return ""
+    }
 };
