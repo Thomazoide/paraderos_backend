@@ -57,6 +57,22 @@ export class VisitFormService {
         return await this.repository.save(visitForm);
     };
 
+    async CreateVisitFormV3(
+        file: {
+            buffer: Buffer;
+            mimetype?: string;
+            originalname?: string;
+        },
+        data: Partial<VisitForm>
+    ): Promise<VisitForm> {
+        const picURL = await this.UploadFileToCS(file, data.busStopId);
+        const newVisitForm = this.repository.create({
+            ...data,
+            picBeforeURL: picURL ?? null
+        });
+        return await this.repository.save(newVisitForm);
+    }
+
     async CreateVisitForm(
         data: Partial<VisitForm>,
         file: {
@@ -72,6 +88,27 @@ export class VisitFormService {
         });
         return await this.repository.save(newVisitForm);
     };
+
+    async FinishVisitFormV3(
+        finalComment: string,
+        file: {
+            buffer: Buffer;
+            mimetype?: string;
+            originalname?: string;
+        },
+        id: number
+    ): Promise<VisitForm> {
+        const visitForm = await this.repository.findOne({
+            where: {id}
+        });
+        if(!visitForm) throw EntityNotFoundError;
+        const picURL = await this.UploadFileToCS(file, visitForm.busStopId);
+        visitForm.picAfterURL = picURL;
+        visitForm.description = `Comentario inicial:\n${visitForm.description}\nComentario final:\n${finalComment}`;
+        visitForm.completed = true;
+        visitForm.completion_date = new Date().toISOString();
+        return await this.repository.save(visitForm);
+    }
 
     async FinishVisitForm(
         finalComment: string,
@@ -192,6 +229,25 @@ export class VisitFormService {
         },
         busStopID?: number
     ): Promise<string> {
-        return ""
+        const mimetype = file.mimetype || "application/octet-stream";
+        const ext = getExtension(mimetype) as string || file.originalname?.split(".").pop() || "bin";
+        const key = `visit-forms/parada-${busStopID ?? "parada desconocida"}/${randomUUID()}.${ext}`;
+        const object = this.storage.bucket(this.bucketName).file(key);
+        const stream = object.createWriteStream({
+            metadata: {
+                contentType: mimetype
+            },
+            resumable: false
+        });
+        let finalURL: string;
+        stream.on("error", (e) => {
+            this.logger.error(e.message);
+            throw e;
+        });
+        stream.on("finish", () => {
+            finalURL = `https://storage.googleapis/${this.bucketName}/${key}`;
+        });
+        stream.end(file.buffer);
+        return finalURL;
     }
 };
