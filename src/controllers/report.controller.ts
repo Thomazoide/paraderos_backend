@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Res } from "@nestjs/common";
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Response } from "express";
 import { API_AUTH_HEADER_NAME, AuthDocsConfig } from "src/constants/auth-docs-config";
 import { Report, ReportDTO } from "src/entities/report.entity";
 import { ReportService } from "src/services/report.service";
@@ -180,4 +181,108 @@ export class ReportController {
             };
         }
     }
+};
+
+@ApiTags("reportes")
+@Controller("reportes/v2")
+export class ReportControllerV2 {
+    constructor(
+        private readonly service: ReportService
+    ){};
+
+    @ApiOperation({
+        description: "Genera un reporte y lo guarda en Google Cloud Storage, luego de verificar que los parámetros entregados son válidos"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "sinceDate",
+        description: "Define que tipo de reporte se debe generar, diario, semanal o mensual. Si el valor entregado no corresponde a uno de los ejemplos, se rechazará el informe.",
+        examples: {
+            diario: {
+                value: "day"
+            },
+            semanal: {
+                value: "week"
+            },
+            mensual: {
+                value: "month"
+            }
+        }
+    })
+    @ApiParam({
+        name: "userID", 
+        example: 1, 
+        description: "ID del usuario que solicita el informe"
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<ReportDTO>,
+        example: {
+            message: "Reporte generado",
+            data: new ReportDTO(),
+            error: false
+        }
+    })
+    @Get("generate/:sinceDate/:userID")
+    async GenerateReport(
+        @Param("sinceDate")
+        sinceDate: sinceDate,
+        @Param("userID", ParseIntPipe)
+        userID: number
+    ): Promise<ResponsePayload<Report>> {
+        try {
+            return {
+                message: "Reporte generado",
+                data: await this.service.GenerateReportGCS(sinceDate, userID),
+                error: false
+            };
+        } catch (e) {
+            return {
+                message: e instanceof Error ? e.message : "Error desconocido",
+                error: false
+            };
+        }
+    };
+
+    @ApiOperation({
+        description: "Descarga el archivo CSV del reporte según el ID entregado"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "id",
+        example: 1,
+        description: "ID del reporte a descargar"
+    })
+    @ApiResponse({
+        status: 200,
+        description: "Archivo CSV descargado exitosamente",
+        schema: {
+            type: "string",
+            format: "binary"
+        }
+    })
+    @ApiResponse({
+        status: 404,
+        description: "Reporte no encontrado"
+    })
+    @Get("descargar/:id")
+    async DownloadReport(
+        @Param("id", ParseIntPipe)
+        id: number,
+        @Res()
+        res: Response
+    ): Promise<void> {
+        try {
+            const buffer = await this.service.DownloadReport(id);
+            res.setHeader("Content-Type", "text/csv");
+            res.setHeader("Content-Disposition", `attachment; filename="report-${id}.csv`);
+            res.send(buffer);
+        } catch (e) {
+            res.status(404).json({
+                message: e instanceof Error ? e.message : "Error desconocido"
+            });
+        }
+    };
 };

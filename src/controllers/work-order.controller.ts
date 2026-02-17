@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { API_AUTH_HEADER_NAME, AuthDocsConfig } from "src/constants/auth-docs-config";
 import { WorkOrder, WorkOrderDTO } from "src/entities/work-order.entity";
 import { WorkOrderService } from "src/services/work-order.service";
@@ -78,6 +78,35 @@ export class WorkOrderController {
         }
     };
 
+    @ApiOperation({
+        description: "Agrega un paradero visitado a una orden de trabajo"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiBody({
+        schema: {
+            type: "object",
+            properties: {
+                workOrder: {
+                    type: "object",
+                    description: "Objeto de la orden de trabajo"
+                },
+                busStopID: {
+                    type: "number",
+                    example: 1
+                }
+            }
+        }
+    })
+    @ApiResponse({
+        status: 201,
+        type: ResponsePayloadDTO<WorkOrder>,
+        example: {
+            message: "Orden actualizada",
+            data: new WorkOrderDTO(),
+            error: false
+        }
+    })
     @Post("agregar-paradero-visitado")
     async AddVisitStop(
         @Body()
@@ -100,6 +129,26 @@ export class WorkOrderController {
         }
     };
 
+    @ApiOperation({
+        description: "Busca todas las órdenes de trabajo asociadas a un usuario específico"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "id",
+        type: "number",
+        example: 1,
+        description: "ID del usuario"
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<WorkOrder[]>,
+        example: {
+            message: "Órdenes encontradas",
+            data: [],
+            error: false
+        }
+    })
     @Get("buscar/usuario/:id")
     async FindByUserID(
         @Param("id", ParseIntPipe)
@@ -119,6 +168,26 @@ export class WorkOrderController {
         }
     };
 
+    @ApiOperation({
+        description: "Busca una orden de trabajo específica por su ID"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "id",
+        type: "number",
+        example: 1,
+        description: "ID de la orden de trabajo"
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<WorkOrder>,
+        example: {
+            message: "Orden encontrada",
+            data: new WorkOrderDTO(),
+            error: false
+        }
+    })
     @Get("buscar/:id")
     async FindByID(
         @Param("id", ParseIntPipe)
@@ -138,6 +207,26 @@ export class WorkOrderController {
         }
     };
 
+    @ApiOperation({
+        description: "Busca una orden de trabajo por el ID de la ruta asociada"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "id",
+        type: "number",
+        example: 1,
+        description: "ID de la ruta"
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<WorkOrder>,
+        example: {
+            message: "Orden encontrada",
+            data: new WorkOrderDTO(),
+            error: false
+        }
+    })
     @Get("ruta/:id")
     async FindByRouteID(
         @Param("id", ParseIntPipe)
@@ -157,6 +246,26 @@ export class WorkOrderController {
         }
     };
 
+    @ApiOperation({
+        description: "Elimina una orden de trabajo por su ID"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "id",
+        type: "number",
+        example: 1,
+        description: "ID de la orden de trabajo a eliminar"
+    })
+    @ApiResponse({
+        status: 200,
+        type: ResponsePayloadDTO<WorkOrder>,
+        example: {
+            message: "Orden borrada",
+            data: new WorkOrderDTO(),
+            error: false
+        }
+    })
     @Delete("borrar/:id")
     async DeleteWorkOrder(
         @Param("id", ParseIntPipe)

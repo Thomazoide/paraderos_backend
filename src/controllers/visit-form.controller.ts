@@ -416,3 +416,152 @@ export class VisitFormControllerV2 {
         }
     }
 };
+
+@ApiTags("formularios de visita")
+@Controller("formluarios/v3")
+export class VisitFormControllerV3 {
+    constructor(
+        private readonly service: VisitFormService
+    ){};
+
+    @ApiOperation({
+        description: "API para crear un formulario de visita con foto inicial"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "file",
+        description: "Foto del paradero al iniciar el formulario",
+        schema: {
+            type: "file",
+            format: "binary"
+        }
+    })
+    @ApiParam({
+        name: "payload",
+        description: "Objeto VisitForm stringificado",
+        schema: {
+            type: "string",
+            example: JSON.stringify({
+                description: "Comentario de llegada",
+                user_id: 0,
+                route_id: 0,
+                busStop_id: 0
+            })
+        }
+    })
+    @ApiResponse({
+        status: 201,
+        type: ResponsePayloadDTO<VisitForm>,
+        example: {
+            message: "Formulario iniciado",
+            data: new VisitForm(),
+            error: false
+        }
+    })
+    @Post("crear")
+    @UseInterceptors(FileInterceptor("file", {
+        limits: {
+            fileSize: 5 * 1024 * 1024
+        },
+        fileFilter: (_, file, cb) => {
+            if (file.mimetype && file.mimetype.startsWith("image/")) return cb(null, true);
+            return cb(FileNotAccepted, false);
+        }
+    }))
+    async CreateVisitForm(
+        @Body("payload", ParseJSONPipe)
+        data: Partial<VisitForm>,
+        @UploadedFile()
+        file: {
+            buffer: Buffer;
+            mimetype?: string;
+            originalname?: string;
+        }
+    ): Promise<ResponsePayload<VisitForm>> {
+        try {
+            return {
+                message: "Formulario iniciado",
+                data: await this.service.CreateVisitFormV3(file, data),
+                error: false
+            };
+        } catch (e) {
+            return {
+                message: e instanceof Error ? e.message : "Error desconocido",
+                error: true
+            };
+        }
+    };
+
+    @ApiOperation({
+        description: "API para cerrar un formulario de visita con foto final"
+    })
+    @ApiBearerAuth(API_AUTH_HEADER_NAME)
+    @ApiHeader(AuthDocsConfig)
+    @ApiParam({
+        name: "id",
+        type: "number",
+        example: 0,
+        description: "ID del formulario a cerrar"
+    })
+    @ApiParam({
+        name: "file",
+        description: "Foto del paradero al cerrar el formulario",
+        schema: {
+            type: "file",
+            format: "binary"
+        }
+    })
+    @ApiParam({
+        name: "finalComment",
+        description: "Comentario final del formulario",
+        schema: {
+            type: "string",
+            example: "Comentario de cierre"
+        }
+    })
+    @ApiResponse({
+        status: 201,
+        type: ResponsePayloadDTO<VisitForm>,
+        example: {
+            message: "Formulario finalizado",
+            data: new VisitForm(),
+            error: false
+        }
+    })
+    @Post("cerrar/:id")
+    @UseInterceptors(FileInterceptor("file", {
+        limits: {
+            fileSize: 5 * 1024 * 1024
+        },
+        fileFilter: (_, file, cb) => {
+            if(file.mimetype && file.mimetype.startsWith("image/")) return cb(null, true);
+            return cb(FileNotAccepted, false)
+        }
+    }))
+    async FinishVisitForm(
+        @Param("id", ParseIntPipe)
+        id: number,
+        @Body("finalComment")
+        finalComment: string,
+        @UploadedFile()
+        file: {
+            buffer: Buffer;
+            mimetype?: string;
+            originalname?: string;
+        }
+    ): Promise<ResponsePayload<VisitForm>> {
+        try {
+            return {
+                message: "Formulario finalizado",
+                data: await this.service.FinishVisitFormV3(finalComment, file, id),
+                error: false
+            };
+        } catch (e) {
+            return {
+                message: e instanceof Error ? e.message : "Error desconocido",
+                error: true
+            };
+        }
+    };
+};
